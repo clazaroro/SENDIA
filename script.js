@@ -1,8 +1,8 @@
-// script.js
+// script.js – Versión completa y definitiva para SEND+IA
+// Funciona con Netlify Functions openai-text y openai-image
 
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("sendiaForm");
-
+  // --- Referencias a elementos del DOM ---
   const materia = document.getElementById("materia");
   const nivel = document.getElementById("nivel");
   const tipoNecesidad = document.getElementById("tipoNecesidad");
@@ -20,47 +20,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const imagenGenerada = document.getElementById("imagenGenerada");
   const estado = document.getElementById("estado");
 
+  // --- Helpers ---
   function setEstado(msg) {
-    estado.textContent = msg || "";
+    estado.textContent = msg;
   }
 
-  function bloquearBotones(bloquear) {
-    btnGenerarPrompt.disabled = bloquear;
-    btnGenerarTexto.disabled = bloquear;
-    btnGenerarImagen.disabled = bloquear;
+  function bloquearControles(b) {
+    btnGenerarPrompt.disabled = b;
+    btnGenerarTexto.disabled = b;
+    btnGenerarImagen.disabled = b;
   }
 
+  // --- Construcción del prompt estructurado ---
   function construirPrompt() {
     const partes = [];
 
     partes.push(
-      "Actúa como un docente especializado en educación inclusiva y necesidades SEND."
+      "Actúa como un docente experto en educación inclusiva y necesidades SEND."
     );
 
-    if (nivel.value) {
-      partes.push(`Nivel educativo del alumnado: ${nivel.value}.`);
-    }
-    if (tipoNecesidad.value) {
-      partes.push(`Tipo principal de necesidad: ${tipoNecesidad.value}.`);
-    }
-    if (formato.value) {
-      partes.push(`Formato deseado del recurso: ${formato.value}.`);
-    }
-    if (materia.value) {
-      partes.push(`Materia o tema: ${materia.value}.`);
-    }
-    if (objetivo.value) {
-      partes.push(`Objetivo didáctico: ${objetivo.value}.`);
-    }
+    if (nivel.value) partes.push(`Nivel educativo: ${nivel.value}.`);
+    if (tipoNecesidad.value) partes.push(`Tipo de necesidad SEND: ${tipoNecesidad.value}.`);
+    if (formato.value) partes.push(`Formato del recurso: ${formato.value}.`);
+    if (materia.value) partes.push(`Materia o tema: ${materia.value}.`);
+    if (objetivo.value) partes.push(`Objetivo didáctico: ${objetivo.value}.`);
 
     partes.push(
-      "Adapta el siguiente contenido para que sea accesible, claro y estructurado para este perfil de alumnado."
-    );
-    partes.push(
-      "Utiliza frases cortas, vocabulario sencillo, buena estructura visual (listas, pasos) y, si procede, ejemplos concretos."
-    );
-    partes.push(
-      "Mantén un tono positivo y motivador. Evita contenido sensible o inapropiado."
+      "Adapta el contenido de forma clara, accesible, estructurada y adecuada al perfil SEND. Usa frases cortas, ejemplos concretos, lenguaje sencillo, pasos numerados y apoyos visuales si procede."
     );
 
     if (textoBase.value.trim()) {
@@ -68,113 +54,33 @@ document.addEventListener("DOMContentLoaded", () => {
       partes.push(textoBase.value.trim());
     } else {
       partes.push(
-        "No se ha proporcionado un texto original largo. Genera un recurso desde cero ajustado a la descripción anterior."
+        "No se ha proporcionado contenido base. Genera un recurso educativo accesible desde cero siguiendo los criterios anteriores."
       );
     }
 
     return partes.join("\n\n");
   }
 
+  // --- Llamadas a las Netlify Functions ---
   async function llamarTextoIA(promptFinal) {
-    const respuesta = await fetch("/.netlify/functions/openai-text", {
+    const r = await fetch("/.netlify/functions/openai-text", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: promptFinal }),
+      body: JSON.stringify({ prompt: promptFinal })
     });
 
-    if (!respuesta.ok) {
-      const errorText = await respuesta.text();
-      throw new Error("Error en openai-text: " + errorText);
+    if (!r.ok) {
+      throw new Error(await r.text());
     }
 
-    const datos = await respuesta.json();
-    return datos.resultado;
+    const data = await r.json();
+    return data.resultado;
   }
 
-  async function llamarImagenIA(descripcionFinal) {
-    const respuesta = await fetch("/.netlify/functions/openai-image", {
+  async function llamarImagenIA(promptImagen) {
+    const r = await fetch("/.netlify/functions/openai-image", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: descripcionFinal }),
+      body: JSON.stringify({ prompt: promptImagen })
     });
 
-    if (!respuesta.ok) {
-      const errorText = await respuesta.text();
-      throw new Error("Error en openai-image: " + errorText);
-    }
-
-    const datos = await respuesta.json();
-    return datos.url;
-  }
-
-  btnGenerarPrompt.addEventListener("click", () => {
-    const prompt = construirPrompt();
-    promptGenerado.value = prompt;
-    setEstado("Prompt estructurado generado. Puedes revisarlo o editarlo.");
-  });
-
-  btnGenerarTexto.addEventListener("click", async () => {
-    try {
-      bloquearBotones(true);
-      setEstado("Generando contenido adaptado con GPT-5.1…");
-
-      let prompt = promptGenerado.value.trim();
-      if (!prompt) {
-        prompt = construirPrompt();
-        promptGenerado.value = prompt;
-      }
-
-      const resultado = await llamarTextoIA(prompt);
-      textoGenerado.textContent = resultado || "(No se recibió texto de la IA)";
-      setEstado("Contenido generado correctamente. Revísalo antes de usarlo en clase.");
-    } catch (error) {
-      console.error(error);
-      setEstado("Ha ocurrido un error al generar el texto. Revisa la consola.");
-    } finally {
-      bloquearBotones(false);
-    }
-  });
-
-  btnGenerarImagen.addEventListener("click", async () => {
-    try {
-      bloquearBotones(true);
-      setEstado("Generando imagen / pictograma con DALL·E…");
-
-      const base = descripcionImagen.value.trim() || materia.value || "acción escolar simple";
-      const necesidad = tipoNecesidad.value || "necesidades educativas especiales";
-
-      const promptImagen = `
-Crea una ilustración tipo pictograma muy clara y simple, con fondo blanco y pocos elementos.
-
-Escena: ${base}.
-Enfoque: alumnado con ${necesidad} en contexto educativo.
-
-Estilo:
-- Estilo pictograma educativo, líneas limpias.
-- Colores planos, contraste alto.
-- Sin detalles confusos.
-
-Texto dentro de la imagen:
-- Usa una tipografía sans serif muy clara.
-- El texto debe estar bien centrado, grande y perfectamente legible.
-- Evita errores ortográficos.
-- Idioma del texto: español.
-`;
-
-      const url = await llamarImagenIA(promptImagen);
-
-      imagenGenerada.innerHTML = "";
-      const img = document.createElement("img");
-      img.src = url;
-      img.alt = "Pictograma / imagen generada por IA";
-      imagenGenerada.appendChild(img);
-
-      setEstado("Imagen generada correctamente.");
-    } catch (error) {
-      console.error(error);
-      setEstado("Ha ocurrido un error al generar la imagen. Revisa la consola.");
-    } finally {
-      bloquearBotones(false);
-    }
-  });
-});
