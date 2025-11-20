@@ -1,8 +1,6 @@
 // netlify/functions/openai-text.js
 
-// FunciÃ³n serverless en formato CommonJS (el que Netlify entiende por defecto)
 exports.handler = async (event, context) => {
-  // Solo aceptamos POST
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -17,7 +15,7 @@ exports.handler = async (event, context) => {
     if (!prompt || typeof prompt !== "string") {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Falta 'prompt' en la peticiÃ³n." }),
+        body: JSON.stringify({ error: "Falta 'prompt' en la petición." }),
       };
     }
 
@@ -25,11 +23,10 @@ exports.handler = async (event, context) => {
     if (!apiKey) {
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: "OPENAI_API_KEY no estÃ¡ configurada." }),
+        body: JSON.stringify({ error: "OPENAI_API_KEY no está configurada." }),
       };
     }
 
-    // Llamada a la nueva API de OpenAI (endpoint /v1/responses)
     const respuesta = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -37,8 +34,8 @@ exports.handler = async (event, context) => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-5.1-mini",
-        input: prompt,               // ðŸ‘‰ aquÃ­ va un string, no un array de mensajes
+        model: "gpt-5.1",      // ?? AQUÍ ESTÁ EL CAMBIO IMPORTANTE
+        input: prompt,         // string directo
         max_output_tokens: 800,
       }),
     });
@@ -54,7 +51,6 @@ exports.handler = async (event, context) => {
 
     const data = await respuesta.json();
 
-    // Intentamos leer el texto segÃºn el formato de la Responses API
     let texto = "";
     try {
       const out = data.output?.[0]?.content?.[0]?.text;
@@ -72,11 +68,12 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ resultado: texto }),
     };
   } catch (error) {
-    console.error("Error en la funciÃ³n openai-text:", error);
+    console.error("Error en la función openai-text:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: "Error interno en openai-text" }),
     };
   }
 };
+
 
