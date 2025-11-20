@@ -1,7 +1,7 @@
 // netlify/functions/openai-image.js
+// VERSIÓN REAL OPTIMIZADA
 
 exports.handler = async (event, context) => {
-  // Solo permitimos POST
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -27,12 +27,13 @@ exports.handler = async (event, context) => {
       return {
         statusCode: 500,
         body: JSON.stringify({
-          error: "OPENAI_API_KEY no está configurada en Netlify.",
+          error: "OPENAI_API_KEY no está configurada.",
         }),
       };
     }
 
-    // Llamada a la API de imágenes de OpenAI
+    console.log("[SEND+IA imagen] prompt:", prompt.slice(0, 200));
+
     const respuesta = await fetch(
       "https://api.openai.com/v1/images/generations",
       {
@@ -42,32 +43,31 @@ exports.handler = async (event, context) => {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-image-1", // 👈 modelo correcto para imágenes
+          model: "gpt-image-1-mini", // más ligero
           prompt,
-          size: "1024x1024",
+          size: "512x512",          // ⚠️ más rápido y suficiente para el boceto
           n: 1,
         }),
       }
     );
 
+    const raw = await respuesta.text();
+    console.log("[SEND+IA imagen] respuesta cruda:", raw);
+
     if (!respuesta.ok) {
-      const errorText = await respuesta.text();
-      console.error("Error OpenAI (imagen):", errorText);
       return {
         statusCode: 500,
         body: JSON.stringify({
           error: "Error desde OpenAI (imagen)",
-          detalle: errorText,
+          detalle: raw,
         }),
       };
     }
 
-    const data = await respuesta.json();
-
-    // La URL viene normalmente en data.data[0].url
+    const data = JSON.parse(raw);
     const url = data?.data?.[0]?.url;
+
     if (!url) {
-      console.error("Respuesta de OpenAI sin URL de imagen:", data);
       return {
         statusCode: 500,
         body: JSON.stringify({
@@ -78,9 +78,7 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
     };
   } catch (error) {
@@ -93,4 +91,6 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+
 
