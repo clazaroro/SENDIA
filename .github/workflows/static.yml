@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SEND+IA · Interfaz educativa (ChatGPT 5.1 + DALL·E 3)</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #111827;
+      --ink: #e5e7eb;
+      --ink2: #22c55e;
+      --stroke: #1f2937;
+      --accent: #22c55e;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .topbar {
+      background: var(--panel);
+      border-bottom: 1px solid var(--stroke);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .key-indicator {
+      font-size: 0.85rem;
+      opacity: 0.85;
+      cursor: pointer;
+    }
+    .key-indicator.ok { color: var(--ink2); }
+    .main { flex: 1; display: flex; overflow: hidden; }
+    .sidebar {
+      width: 340px;
+      background: var(--panel);
+      border-right: 1px solid var(--stroke);
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .field { margin-bottom: 14px; }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--ink2);
+      font-size: 0.9rem;
+    }
+    select, textarea {
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid var(--stroke);
+      background: #0f172a;
+      color: var(--ink);
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+    textarea { resize: vertical; min-height: 90px; }
+    .btn {
+      border: none;
+      border-radius: var(--radius);
+      padding: 10px;
+      cursor: pointer;
+      background: #1f2937;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+    .btn:hover { background: #374151; transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: #0b0f14; font-weight: 600; }
+    .btn-primary:hover { background: #16a34a; }
+    .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .msg {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      white-space: pre-line;
+    }
+    .msg.assistant { border-left: 3px solid var(--accent); }
+    .prompt-bar {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      border-top: 1px solid var(--stroke);
+      background: var(--panel);
+    }
+    .prompt-input {
+      flex: 1;
+      border: none;
+      border-radius: var(--radius);
+      padding: 10px;
+      background: #0f172a;
+      color: var(--ink);
+      font-size: 15px;
+      resize: vertical;
+      min-height: 240px;
+      max-height: 600px;
+      outline: none;
+    }
+    .send-btn {
+      background: var(--accent);
+      color: #0b0f14;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      align-self: flex-end;
+    }
+    .send-btn:hover { background: #16a34a; }
+    .field-subject { position: relative; }
+    .subject-actions {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      display: flex;
+      gap: 6px;
+    }
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div>⚙️ SEND+IA · Generador Modular Inclusivo</div>
+    <div id="keyState" class="key-indicator">API key no configurada</div>
+  </div>
+
+  <div class="main">
+    <aside class="sidebar">
+      <div class="field">
+        <label for="need">Tipo de necesidad SEND</label>
+        <select id="need"></select>
+      </div>
+      <div class="field">
+        <label for="needClass">Clase</label>
+        <select id="needClass"></select>
+      </div>
+      <div class="field">
+        <label for="stage">Etapa educativa</label>
+        <select id="stage"></select>
+      </div>
+      <div class="field">
+        <label for="grade">Curso</label>
+        <select id="grade"></select>
+      </div>
+      <div class="field">
+        <label for="lang">Idioma</label>
+        <select id="lang"></select>
+      </div>
+      <div class="field">
+        <label for="format">Formato preferido</label>
+        <select id="format"></select>
+      </div>
+      <div class="field field-subject">
+        <label for="subject">Materia o tema</label>
+        <textarea id="subject" placeholder="Ej.: Fracciones, ecosistemas, la célula..."></textarea>
+        <div class="subject-actions">
+          <button class="icon-btn" id="subjectVoiceBtn" title="Dictar por voz">🎤</button>
+          <button class="icon-btn" id="subjectUploadBtn" title="Subir fichero">📁</button>
+        </div>
+        <input type="file" id="subjectFileInput" accept="text/*,.csv,.md" style="display:none" />
+      </div>
+      <div class="field">
+        <button id="buildPromptBtn" class="btn btn-primary">⚡ Generar prompt</button>
+      </div>
+    </aside>
+
+    <section class="chat-container">
+      <div class="chat" id="feed">
+        <div class="msg assistant">Bienvenido a SEND+IA. Tus resultados aparecerán aquí.</div>
+      </div>
+      <div class="prompt-bar">
+        <textarea id="promptInput" class="prompt-input" placeholder="Aquí aparecerá el prompt generado o puedes escribir el tuyo..."></textarea>
+        <button id="generateBtn" class="send-btn">Generar Contenido</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+// ---------------- API KEY ----------------
+const keyState = document.getElementById('keyState');
+
+function getApiKey() {
+  try { return localStorage.getItem('openai_key') || ''; } catch (e) { return ''; }
+}
+
+function updateKeyIndicator() {
+  const k = getApiKey();
+  if (k) {
+    keyState.textContent = 'API key configurada';
+    keyState.classList.add('ok');
+  } else {
+    keyState.textContent = 'API key no configurada';
+    keyState.classList.remove('ok');
+  }
+}
+
+async function ensureApiKey() {
+  let k = getApiKey();
+  if (k) {
+    updateKeyIndicator();
+    return k;
+  }
+  const pasted = window.prompt('Pega tu OpenAI API key');
+  if (pasted) {
+    try { localStorage.setItem('openai_key', pasted); } catch (e) {}
+    updateKeyIndicator();
+    return pasted;
+  }
+  throw new Error('API key requerida');
+}
+
+keyState.addEventListener('click', ensureApiKey);
+updateKeyIndicator();
+
+// ---------------- DATOS MENÚS ----------------
+const NEED_CLASS_MAP = {
+  'Cognitiva y de aprendizaje': ['Dislexia', 'Discalculia', 'TDAH', 'Retraso madurativo leve'],
+  'Comunicación e Interacción': ['TEA leve', 'TEL'],
+  'Sensoriales': ['Baja visión', 'Hipoacusia'],
+  'Motrices': ['Dispraxia', 'Movilidad reducida'],
+  'Socioemocionales y Conductuales': ['Ansiedad escolar', 'Trastornos de conducta leves']
+};
+
+const COURSES = {
+  'Infantil': ['3 años', '4 años', '5 años'],
+  'Primaria': ['1º de Primaria', '2º de Primaria', '3º de Primaria', '4º de Primaria', '5º de Primaria', '6º de Primaria'],
+  'Secundaria': ['1º de ESO', '2º de ESO', '3º de ESO', '4º de ESO']
+};
+
+const LANGS = ['Español', 'Catalán', 'Inglés'];
+const FORMATS = ['Texto adaptado', 'Imagen', 'Pictograma', 'Ficha imprimible', 'Presentación', 'Esquema gráfico', 'Actividad Interactiva', 'Tabla', 'Video'];
+
+function fillSelect(id, arr) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = arr.map(v => '<option value="' + v + '">' + v + '</option>').join('');
+}
+
+function populateNeedClasses() {
+  const need = document.getElementById('need').value;
+  const classes = NEED_CLASS_MAP[need] || [];
+  fillSelect('needClass', classes);
+}
+
+function populateCourses() {
+  const stage = document.getElementById('stage').value;
+  const courses = COURSES[stage] || [];
+  fillSelect('grade', courses);
+}
+
+function initMenus() {
+  fillSelect('need', Object.keys(NEED_CLASS_MAP));
+  fillSelect('stage', Object.keys(COURSES));
+  fillSelect('lang', LANGS);
+  fillSelect('format', FORMATS);
+  populateNeedClasses();
+  populateCourses();
+}
+
+initMenus();
+
+document.getElementById('need').addEventListener('change', populateNeedClasses);
+document.getElementById('stage').addEventListener('change', populateCourses);
+
+// ---------------- GENERAR PROMPT ----------------
+function buildPrompt() {
+  const need = document.getElementById('need').value || '[Tipo]';
+  const needClass = document.getElementById('needClass').value || '[Clase]';
+  const stage = document.getElementById('stage').value || '[Etapa]';
+  const grade = document.getElementById('grade').value || '[Curso]';
+  const lang = document.getElementById('lang').value || '[Idioma]';
+  const format = document.getElementById('format').value || '[Formato]';
+  const subject = (document.getElementById('subject').value || '').trim() || '[Materia o tema]';
+
+  const lines = [
+    'Genera recursos educativos adaptados para un alumno/a con necesidades SEND.',
+    '',
+    'Tipo de necesidad SEND: ' + need + ' (' + needClass + ')',
+    'Etapa educativa: ' + stage,
+    'Curso: ' + grade,
+    'Materia o tema: ' + subject,
+    'Idioma del recurso: ' + lang,
+    'Formato preferido: ' + format,
+    '',
+    'Además, adapta el recurso para incluir estrategias inclusivas, apoyos visuales y simplificación del lenguaje.'
+  ];
+  // Importante: usar "\n" explícito para los saltos de línea
+  return lines.join('\n');
+}
+
+document.getElementById('buildPromptBtn').addEventListener('click', function () {
+  const prompt = buildPrompt();
+  const input = document.getElementById('promptInput');
+  input.value = prompt;
+  input.focus();
+});
+
+// ---------------- OPENAI TEXTO (ChatGPT 5.1) ----------------
+async function callText(prompt) {
+  const apiKey = await ensureApiKey();
+  const body = {
+    model: 'chatgpt-5.1', // si no está disponible, cambia manualmente a 'gpt-4o'
+    messages: [
+      { role: 'system', content: 'Eres un asistente educativo inclusivo y creativo especializado en materiales SEND.' },
+      { role: 'user', content: prompt }
+    ]
+  };
+
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + apiKey
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error((data && data.error && data.error.message) || 'Error de API');
+  }
+  const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+  return content || 'Sin respuesta';
+}
+
+// ---------------- OPENAI IMÁGENES (DALL·E 3) ----------------
+async function callImage(prompt) {
+  const apiKey = await ensureApiKey();
+  const textGuidelines = ' Requisitos estrictos: Usa TEXTO REAL, no imitación. Tipografía sans serif (Arial o Helvetica). Sin caracteres extraños. Imagen clara, alto contraste, sin artefactos. Si es pictograma: estilo pictograma SEND, líneas simples, fondo blanco, trazos negros, diseño limpio y minimalista.';
+  const enrichedPrompt = prompt + textGuidelines;
+  const body = {
+    model: 'dall-e-3',
+    prompt: enrichedPrompt,
+    n: 1,
+    size: '1024x1024'
+  };
+
+  const res = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + apiKey
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error((data && data.error && data.error.message) || 'Error generando imagen');
+  }
+  const url = data.data && data.data[0] && data.data[0].url;
+  if (!url) throw new Error('Respuesta de imagen vacía');
+  return url;
+}
+
+// ---------------- GENERAR CONTENIDO ----------------
+async function generateContent() {
+  const format = document.getElementById('format').value;
+  const prompt = (document.getElementById('promptInput').value || '').trim();
+  const feed = document.getElementById('feed');
+  if (!prompt) return;
+
+  const box = document.createElement('div');
+  box.className = 'msg assistant';
+  box.textContent = 'Generando ' + (format || 'contenido') + '...';
+  feed.appendChild(box);
+  feed.scrollTop = feed.scrollHeight;
+
+  try {
+    if (format === 'Imagen' || format === 'Pictograma') {
+      const imgUrl = await callImage(prompt);
+      box.textContent = '';
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      img.alt = 'Resultado generado';
+      img.style.maxWidth = '100%';
+      box.appendChild(img);
+    } else if (format === 'Presentación') {
+      const extra = '\n\nCrea un esquema de presentación tipo diapositivas con títulos claros y viñetas breves.';
+      const text = await callText(prompt + extra);
+      box.textContent = text;
+    } else {
+      const text = await callText(prompt);
+      box.textContent = text;
+    }
+  } catch (e) {
+    box.textContent = '⚠️ Error: ' + (e.message || String(e));
+  }
+
+  feed.scrollTop = feed.scrollHeight;
+}
+
+document.getElementById('generateBtn').addEventListener('click', generateContent);
+
+// ---------------- MATERIA/TEMA: SUBIR Y VOZ ----------------
+const subjectEl = document.getElementById('subject');
+const subjectUploadBtn = document.getElementById('subjectUploadBtn');
+const subjectVoiceBtn = document.getElementById('subjectVoiceBtn');
+const subjectFileInput = document.getElementById('subjectFileInput');
+
+subjectUploadBtn.addEventListener('click', function () {
+  subjectFileInput.click();
+});
+
+subjectFileInput.addEventListener('change', function () {
+  const f = subjectFileInput.files && subjectFileInput.files[0];
+  if (!f) return;
+  if (f.type.startsWith('text/') || /\.(md|csv|txt)$/i.test(f.name)) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      subjectEl.value = (subjectEl.value + '\n' + reader.result).trim();
+    };
+    reader.readAsText(f);
+  } else {
+    alert('Formato no soportado. Usa .txt, .md o .csv');
+  }
+});
+
+subjectVoiceBtn.addEventListener('click', function () {
+  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Rec) {
+    alert('Tu navegador no soporta reconocimiento de voz');
+    return;
+  }
+  const recognition = new Rec();
+  const langSel = document.getElementById('lang').value || 'Español';
+  recognition.lang = langSel === 'Catalán' ? 'ca-ES' : (langSel === 'Inglés' ? 'en-US' : 'es-ES');
+  recognition.interimResults = false;
+  recognition.onresult = function (e) {
+    const text = e.results[0][0].transcript || '';
+    subjectEl.value = (subjectEl.value + ' ' + text).trim();
+  };
+  recognition.onerror = function () {
+    alert('No se pudo captar audio');
+  };
+  recognition.start();
+});
+
+// ---------------- TEST BÁSICO ----------------
+(function selfTest() {
+  try {
+    const p = buildPrompt();
+    console.log('✔ buildPrompt OK, líneas:', p.split('\n').length);
+  } catch (e) {
+    console.error('❌ Error en buildPrompt:', e);
+  }
+})();
+  </script>
+</body>
+</html>
+
