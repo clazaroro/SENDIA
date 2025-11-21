@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>SEND+IA – Boceto Generador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>SEND+IA – Generador de recursos accesibles</h1>
+    <p class="subtitle">
+      Boceto conectado de forma segura a la API de OpenAI (texto e imágenes).
+    </p>
+  </header>
+
+  <main class="container" aria-label="Generador SEND+IA">
+    <section class="panel panel-form" aria-label="Parámetros de generación">
+      <h2>1. Configura el recurso</h2>
+
+      <form id="sendiaForm">
+        <div class="form-group">
+          <label for="materia">Materia o tema</label>
+          <input type="text" id="materia" name="materia"
+                 placeholder="Ej: Sistema Solar, fracciones, emociones básicas" />
+        </div>
+
+        <div class="form-group">
+          <label for="nivel">Nivel educativo</label>
+          <select id="nivel" name="nivel">
+            <option value="">Selecciona una opción…</option>
+            <option value="Infantil">Infantil</option>
+            <option value="Primaria - 1er ciclo">Primaria – 1er ciclo</option>
+            <option value="Primaria - 2º ciclo">Primaria – 2º ciclo</option>
+            <option value="Secundaria">Secundaria</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="tipoNecesidad">Tipo de necesidad SEND</label>
+          <select id="tipoNecesidad" name="tipoNecesidad">
+            <option value="">Selecciona una opción…</option>
+            <option value="cognitiva">Cognitiva</option>
+            <option value="comunicativa / lenguaje">Comunicativa / lenguaje</option>
+            <option value="sensorial (visual)">Sensorial – visual</option>
+            <option value="sensorial (auditiva)">Sensorial – auditiva</option>
+            <option value="motriz">Motriz</option>
+            <option value="socioemocional">Socioemocional / conducta</option>
+            <option value="TEA">TEA / autismo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="formato">Formato principal</label>
+          <select id="formato" name="formato">
+            <option value="">Selecciona una opción…</option>
+            <option value="texto_simplificado">Texto simplificado</option>
+            <option value="texto_con_pictogramas">Texto con apoyo de pictogramas</option>
+            <option value="guion_audio">Guion para audio</option>
+            <option value="lista_pasos">Lista de pasos muy clara</option>
+            <option value="preguntas_comprension">Preguntas de comprensión</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="objetivo">Objetivo didáctico (opcional)</label>
+          <input type="text" id="objetivo" name="objetivo"
+                 placeholder="Ej: Comprender las fases de la Luna, identificar las fracciones…" />
+        </div>
+
+        <div class="form-group">
+          <label for="textoBase">
+            Texto base (contenido que quieres adaptar o resumir)
+          </label>
+          <textarea id="textoBase" name="textoBase" rows="6"
+                    placeholder="Pega aquí el texto original que quieres adaptar para tu alumnado SEND."></textarea>
+        </div>
+
+        <div class="button-row">
+          <button type="button" id="btnGenerarPrompt" class="btn secondary">
+            1. Generar prompt estructurado
+          </button>
+          <button type="button" id="btnGenerarTexto" class="btn primary">
+            2. Generar contenido adaptado
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label for="descripcionImagen">
+            Descripción del pictograma / imagen educativa (opcional)
+          </label>
+          <textarea id="descripcionImagen" name="descripcionImagen" rows="3"
+                    placeholder="Ej: Pictograma claro con un niño leyendo un libro, con el texto 'Leer' debajo."></textarea>
+        </div>
+
+        <div class="button-row">
+          <button type="button" id="btnGenerarImagen" class="btn outline">
+            3. Generar pictograma / imagen con DALL·E
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel panel-output" aria-label="Resultados generados">
+      <h2>2. Resultados</h2>
+
+      <div class="output-group">
+        <h3>Prompt estructurado (revisable)</h3>
+        <textarea id="promptGenerado" rows="6" readonly
+                  aria-label="Prompt generado para enviar a la IA"></textarea>
+      </div>
+
+      <div class="output-group">
+        <h3>Contenido adaptado para el alumnado SEND</h3>
+        <div id="textoGenerado" class="output-box" aria-live="polite"></div>
+      </div>
+
+      <div class="output-group">
+        <h3>Pictograma / imagen generada</h3>
+        <div id="imagenGenerada" class="image-box" aria-live="polite">
+          <p class="placeholder">Aquí aparecerá la imagen generada por la IA.</p>
+        </div>
+      </div>
+
+      <div id="estado" class="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>
+      Proyecto <strong>SEND+IA</strong> – Boceto educativo con IA generativa
+      (texto con GPT-5.1 y pictogramas con DALL·E).
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
