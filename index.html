@@ -1,172 +1,109 @@
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Proyecto SENDIA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="app">
-      <main class="app-shell">
-        <header class="app-header">
-          <div class="app-title-row">
-            <div class="app-logo">S+</div>
-            <div>
-              <div class="app-title">Proyecto SENDIA</div>
-              <div class="app-subtitle">
-                Generador inclusivo de recursos con Inteligencia Artificial
-              </div>
+<div class="app">
+  <main class="app-shell">
+    <header class="app-header">
+      <div class="app-title-row">
+        <div class="app-logo">S+</div>
+        <div>
+          <div class="app-title">SENDIA</div>
+          <div class="app-subtitle">
+            Generador inclusivo de recursos con Inteligencia Artificial
+          </div>
+        </div>
+      </div>
+      <div class="app-steps">
+        1. Elige nivel y perfil SEND · 2. Escribe el tema o pega el texto · 3. Genera el contenido adaptado
+      </div>
+    </header>
+
+    <section class="app-grid">
+      <!-- Columna izquierda: formulario -->
+      <section class="card">
+        <h2 class="card-title">Configuración del recurso</h2>
+
+        <div class="form-grid">
+          <div class="field">
+            <label class="field-label">Nivel educativo</label>
+            <select class="select">
+              <option>Primaria</option>
+              <option>Secundaria</option>
+              <!-- ... -->
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Materia</label>
+            <select class="select">
+              <option>Lengua</option>
+              <option>Matemáticas</option>
+              <!-- ... -->
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Perfil SEND</label>
+            <select class="select">
+              <option>Cognitiva (dislexia…)</option>
+              <option>Comunicación / TEA</option>
+              <option>Sensorial</option>
+              <option>Motriz</option>
+              <option>Socioemocional</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top: 1rem;">
+          <label class="field-label">Texto base o tema</label>
+          <div class="input-group">
+            <textarea class="textarea" placeholder="Escribe el contenido o pega el texto a adaptar..."></textarea>
+            <div class="icon-buttons">
+              <button type="button" class="icon-button" title="Dictar por voz">
+                🎙️
+              </button>
+              <button type="button" class="icon-button" title="Subir archivo">
+                ⬆️
+              </button>
             </div>
           </div>
-          <div class="app-steps">
-            1. Elige nivel y perfil SEND · 2. Escribe el tema o pega el texto · 3. Genera el contenido adaptado
+        </div>
+
+        <div class="field" style="margin-top: 0.75rem;">
+          <label class="field-label">Tipo de recurso a generar</label>
+          <div class="chip-group">
+            <button type="button" class="chip is-active">Texto simplificado</button>
+            <button type="button" class="chip">Pictogramas / Imagen</button>
+            <button type="button" class="chip">Audio / Narración</button>
+            <button type="button" class="chip">Actividad interactiva</button>
           </div>
-        </header>
+        </div>
 
-        <section class="app-grid">
-          <!-- Columna izquierda: configuración (1/3) -->
-          <section class="card" id="panel-config">
-            <h2 class="card-title">Configura el recurso</h2>
+        <div class="actions-row">
+          <button class="btn btn-primary" type="button">
+            ⚙️ Generar prompt
+          </button>
+          <button class="btn btn-secondary" type="button">
+            ✨ Generar contenido
+          </button>
+        </div>
+      </section>
 
-            <div class="form-grid">
-              <div class="field">
-                <label class="field-label" for="nivel">Nivel educativo</label>
-                <select class="select" id="nivel">
-                  <option value="">Selecciona…</option>
-                  <option>Infantil</option>
-                  <option>Primaria</option>
-                  <option>Secundaria</option>
-                  <option>Bachillerato</option>
-                </select>
-              </div>
+      <!-- Columna derecha: resultados -->
+      <section class="card">
+        <h2 class="card-title">Resultados</h2>
 
-              <div class="field">
-                <label class="field-label" for="materia">Materia</label>
-                <select class="select" id="materia">
-                  <option value="">Selecciona…</option>
-                  <option>Lengua</option>
-                  <option>Matemáticas</option>
-                  <option>Ciencias</option>
-                  <option>Historia</option>
-                  <option>Inglés</option>
-                </select>
-              </div>
+        <div class="results-tabs">
+          <button class="results-tab is-active">Prompt</button>
+          <button class="results-tab">Contenido</button>
+        </div>
 
-              <div class="field">
-                <label class="field-label" for="tipoNecesidad">Perfil SEND</label>
-                <select class="select" id="tipoNecesidad">
-                  <option value="">Selecciona…</option>
-                  <option>Cognitiva</option>
-                  <option>Comunicación / TEA</option>
-                  <option>Sensorial</option>
-                  <option>Motriz</option>
-                  <option>Socioemocional</option>
-                </select>
-              </div>
-            </div>
+        <div class="results-box">
+          <p>Aquí se mostrará el prompt o el contenido generado por la IA...</p>
+        </div>
 
-            <div class="field" style="margin-top: 1rem;">
-              <label class="field-label" for="textoBase">Texto base o tema</label>
-              <div class="input-group">
-                <textarea
-                  class="textarea"
-                  id="textoBase"
-                  placeholder="Escribe el contenido o pega el texto a adaptar…"
-                ></textarea>
-                <div class="icon-buttons">
-                  <button type="button" class="icon-button" id="btnDictado" title="Dictar por voz">
-                    🎙️
-                  </button>
-                  <button type="button" class="icon-button" id="btnSubir" title="Subir archivo">
-                    ⬆️
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="field" style="margin-top: 0.75rem;">
-              <label class="field-label">Tipo de recurso</label>
-              <div class="chip-group" id="grupoFormato">
-                <button type="button" class="chip is-active" data-formato="texto">Texto simplificado</button>
-                <button type="button" class="chip" data-formato="imagen">Pictogramas / Imagen</button>
-                <button type="button" class="chip" data-formato="audio">Audio / Narración</button>
-              </div>
-            </div>
-
-            <div class="actions-row">
-              <button class="btn btn-primary" type="button" id="btnGenerarPrompt">
-                ⚙️ Generar prompt
-              </button>
-              <button class="btn btn-secondary" type="button" id="btnGenerarContenido">
-                ✨ Generar contenido
-              </button>
-              <button class="btn btn-secondary" type="button" id="btnGenerarImagen">
-                🖼️ Generar pictograma
-              </button>
-            </div>
-          </section>
-
-          <!-- Columna derecha: resultados (2/3) -->
-          <section class="card" id="panel-resultados">
-            <h2 class="card-title">Resultados</h2>
-
-            <div class="results-tabs">
-              <button class="results-tab is-active" data-tab="prompt">Prompt</button>
-              <button class="results-tab" data-tab="texto">Contenido</button>
-              <button class="results-tab" data-tab="imagen">Imagen</button>
-            </div>
-
-            <!-- Panel Prompt -->
-            <div class="results-panel is-active" data-panel="prompt">
-              <label class="field-label" for="promptEditable">Prompt editable</label>
-              <textarea
-                id="promptEditable"
-                class="prompt-textarea"
-                placeholder="Aquí se generará el prompt estructurado para la IA. Puedes editarlo antes de usarlo."
-              ></textarea>
-            </div>
-
-            <!-- Panel Contenido -->
-            <div class="results-panel" data-panel="texto">
-              <label class="field-label">Contenido adaptado para el alumnado SEND</label>
-              <div class="results-box" id="resultadoTexto">
-                Aquí aparecerá el contenido adaptado.
-              </div>
-
-              <div class="actions-row results-actions">
-                <button class="btn btn-secondary" type="button" id="btnCopiarTexto">📋 Copiar</button>
-                <button class="btn btn-secondary" type="button" id="btnCompartirTexto">🔗 Compartir</button>
-                <button class="btn btn-secondary" type="button" id="btnGuardarTexto">💾 Guardar como recurso</button>
-                <button class="btn btn-secondary" type="button" id="btnDescargarMp3">🎧 Descargar MP3</button>
-                <button class="btn btn-secondary" type="button" id="btnImprimirTexto">🖨️ Imprimir</button>
-              </div>
-            </div>
-
-            <!-- Panel Imagen -->
-            <div class="results-panel" data-panel="imagen">
-              <label class="field-label">Pictograma / imagen generada</label>
-              <div class="results-box results-box--image">
-                <img
-                  id="imgPictograma"
-                  src=""
-                  alt="Pictograma generado por SENDIA"
-                  style="max-width: 100%; height: auto; display: none;"
-                />
-              </div>
-
-              <div class="actions-row results-actions">
-                <button class="btn btn-secondary" type="button" id="btnDescargarImagen">⬇️ Descargar</button>
-                <button class="btn btn-secondary" type="button" id="btnCompartirImagen">🔗 Compartir</button>
-                <button class="btn btn-secondary" type="button" id="btnGuardarImagen">💾 Guardar como recurso</button>
-                <button class="btn btn-secondary" type="button" id="btnImprimirImagen">🖨️ Imprimir</button>
-              </div>
-            </div>
-          </section>
-        </section>
-      </main>
-    </div>
-
-    <script src="script.js"></script>
-  </body>
-</html>
+        <div class="actions-row" style="margin-top: 0.9rem;">
+          <button class="btn btn-secondary" type="button">📋 Copiar</button>
+          <button class="btn btn-secondary" type="button">⬇️ Descargar</button>
+        </div>
+      </section>
+    </section>
+  </main>
+</div>
