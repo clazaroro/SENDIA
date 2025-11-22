@@ -1,235 +1,313 @@
-// ==========================
-// SENDIA – script.js moderno
-// Adaptado al nuevo HTML 2025
-// ==========================
+// script.js – Lógica básica de interfaz para Proyecto SENDIA
+// Esta versión se centra en que TODO funcione en el navegador
+// sin depender todavía de una API externa. Los puntos de conexión
+// con IA están marcados con comentarios TODO.
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Helpers
+  const $id = (id) => document.getElementById(id);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-  // -----------------------------
-  // ELEMENTOS DEL DOM
-  // -----------------------------
-  const textareaBase = document.querySelector("#textoBase");
-  const promptEditable = document.querySelector("#promptEditable");
-  const resultadoTexto = document.querySelector("#resultadoTexto");
-  const imgPictograma = document.querySelector("#imgPictograma");
+  // Campos del formulario
+  const nivel = $id("nivel");
+  const materia = $id("materia");
+  const tipoNecesidad = $id("tipoNecesidad");
+  const textoBase = $id("textoBase");
 
-  const btnGenerarPrompt = document.querySelector(".btn.btn-primary");
-  const btnGenerarContenido = document.querySelector(".btn.btn-secondary");
-  const tabs = document.querySelectorAll(".results-tab");
+  // Botones principales
+  const btnGenerarPrompt = $id("btnGenerarPrompt");
+  const btnGenerarContenido = $id("btnGenerarContenido");
+  const btnGenerarImagen = $id("btnGenerarImagen");
 
-  // Botones de acción
-  const btnCopiarContenido = document.querySelector("#btnCopiarContenido");
-  const btnCompartirTexto = document.querySelector("#btnCompartirTexto");
-  const btnGuardarTexto = document.querySelector("#btnGuardarTexto");
-  const btnDescargarMP3 = document.querySelector("#btnDescargarMP3");
-  const btnImprimirTexto = document.querySelector("#btnImprimirTexto");
+  // Resultados
+  const promptEditable = $id("promptEditable");
+  const resultadoTexto = $id("resultadoTexto");
+  const imgPictograma = $id("imgPictograma");
 
-  const btnDescargarImagen = document.querySelector("#btnDescargarImagen");
-  const btnCompartirImagen = document.querySelector("#btnCompartirImagen");
-  const btnGuardarImagen = document.querySelector("#btnGuardarImagen");
-  const btnImprimirImagen = document.querySelector("#btnImprimirImagen");
+  // Botones resultados texto
+  const btnCopiarTexto = $id("btnCopiarTexto");
+  const btnCompartirTexto = $id("btnCompartirTexto");
+  const btnGuardarTexto = $id("btnGuardarTexto");
+  const btnDescargarMp3 = $id("btnDescargarMp3");
+  const btnImprimirTexto = $id("btnImprimirTexto");
 
+  // Botones resultados imagen
+  const btnDescargarImagen = $id("btnDescargarImagen");
+  const btnCompartirImagen = $id("btnCompartirImagen");
+  const btnGuardarImagen = $id("btnGuardarImagen");
+  const btnImprimirImagen = $id("btnImprimirImagen");
 
-  // -----------------------------
-  // CLAVE API (AÑADE LA TUYA)
-  // -----------------------------
-  const OPENAI_KEY = "AQUI_TU_API_KEY";
+  // Chips de formato
+  const chipsFormato = $$("#grupoFormato .chip");
 
+  // Tabs
+  const tabs = $$(".results-tab");
+  const panels = $$(".results-panel");
 
-  // -----------------------------
-  // FUNCIÓN: Construir Prompt
-  // -----------------------------
-  function construirPrompt() {
-    const texto = textareaBase.value.trim();
+  const valor = (el) => (el && typeof el.value === "string" ? el.value.trim() : "");
 
-    return `
-Actúa como un docente experto en educación inclusiva SEND.
-
-Adapta el siguiente contenido usando:
-- Lenguaje claro
-- Frases simples
-- Pasos numerados
-- Explicaciones visuales cuando sea posible
-
-TEXTO BASE:
-${texto || "No se proporcionó texto. Genera un contenido adaptado desde cero."}
-`;
-  }
-
-
-  // -----------------------------
-  // Generar prompt
-  // -----------------------------
-  btnGenerarPrompt.addEventListener("click", () => {
-    const prompt = construirPrompt();
-    promptEditable.value = prompt;
-
-    activarTab("prompt");
-  });
-
-
-  // -----------------------------
-  // Llamada a OpenAI – Texto (ChatGPT 5.1)
-  // -----------------------------
-  async function generarTexto(prompt) {
-    const respuesta = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENAI_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-5.1",
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-
-    const data = await respuesta.json();
-    return data.choices?.[0]?.message?.content || "(Sin respuesta)";
-  }
-
-
-  // -----------------------------
-  // Botón: Generar Contenido Adaptado
-  // -----------------------------
-  btnGenerarContenido.addEventListener("click", async () => {
-    const prompt = promptEditable.value.trim() || construirPrompt();
-
-    resultadoTexto.textContent = "Generando contenido…";
-
-    const texto = await generarTexto(prompt);
-
-    resultadoTexto.textContent = texto;
-
-    activarTab("contenido");
-  });
-
-
-
-  // -----------------------------
-  // Generar Imagen – DALL·E
-  // -----------------------------
-  async function generarImagen(prompt) {
-    const respuesta = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENAI_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-image-1",
-        prompt,
-        size: "1024x1024"
-      })
-    });
-
-    const data = await respuesta.json();
-    return data.data?.[0]?.url;
-  }
-
-
-  // Botón: Generar Imagen desde prompt
-  document.querySelector(".chip-group").addEventListener("click", async (e) => {
-    if (e.target.textContent.includes("Imagen")) {
-
-      const promptImagen = `
-Crea un pictograma educativo SEND:
-- Fondo blanco
-- Colores planos
-- Texto claro dentro de la imagen (sin errores)
-- Estilo pictograma escolar
-- Muy legible para alumnado SEND
-
-TEXTO/ESCENA:
-${textareaBase.value.trim() || "Escena escolar sencilla"}
-      `;
-
-      imgPictograma.style.display = "none";
-      imgPictograma.src = "";
-
-      activarTab("imagen");
-
-      const url = await generarImagen(promptImagen);
-
-      imgPictograma.src = url;
-      imgPictograma.style.display = "block";
-    }
-  });
-
-
-  // --------------------------------
-  // FUNCIONES DE ACCIÓN (copiar, imprimir…)
-  // --------------------------------
-
-  // Copiar contenido adaptado
-  document.querySelector("#btnCopiarTexto")?.addEventListener("click", () => {
-    navigator.clipboard.writeText(resultadoTexto.textContent);
-    alert("Contenido copiado");
-  });
-
-  // Descargar MP3 (TTS)
-  document.querySelector("#btnDescargarMp3")?.addEventListener("click", async () => {
-    const texto = resultadoTexto.textContent;
-
-    const respuesta = await fetch("https://api.openai.com/v1/audio/speech", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENAI_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini-tts",
-        voice: "alloy",
-        input: texto
-      })
-    });
-
-    const blob = await respuesta.blob();
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "sendia.mp3";
-    a.click();
-  });
-
-  // Imprimir texto
-  document.querySelector("#btnImprimirTexto")?.addEventListener("click", () => {
-    const ventana = window.open("", "_blank");
-    ventana.document.write(`<pre>${resultadoTexto.textContent}</pre>`);
-    ventana.print();
-  });
-
-  // Descargar imagen
-  document.querySelector("#btnDescargarImagen")?.addEventListener("click", () => {
-    const a = document.createElement("a");
-    a.href = imgPictograma.src;
-    a.download = "pictograma_sendia.png";
-    a.click();
-  });
-
-  // Imprimir imagen
-  document.querySelector("#btnImprimirImagen")?.addEventListener("click", () => {
-    const ventana = window.open("", "_blank");
-    ventana.document.write(`<img src="${imgPictograma.src}" style="max-width:100%;">`);
-    ventana.print();
-  });
-
-
-  // -----------------------------
-  // SISTEMA DE PESTAÑAS
-  // -----------------------------
   function activarTab(nombre) {
-    tabs.forEach(t => {
-      const activo = t.dataset.tab === nombre;
-      t.classList.toggle("is-active", activo);
+    tabs.forEach((tab) => {
+      const activa = tab.dataset.tab === nombre;
+      tab.classList.toggle("is-active", activa);
     });
-
-    document.querySelectorAll(".results-panel").forEach(p => {
-      p.classList.toggle("is-active", p.dataset.panel === nombre);
+    panels.forEach((panel) => {
+      const activa = panel.dataset.panel === nombre;
+      panel.classList.toggle("is-active", activa);
     });
   }
 
+  // ---------- Construir prompt estructurado ----------
+  function construirPrompt() {
+    const partes = [];
+
+    partes.push(
+      "Actúa como docente experto en educación inclusiva y necesidades SEND."
+    );
+
+    const vNivel = valor(nivel);
+    const vMateria = valor(materia);
+    const vTipo = valor(tipoNecesidad);
+    const vTexto = valor(textoBase);
+
+    if (vNivel) partes.push(`Nivel educativo: ${vNivel}.`);
+    if (vMateria) partes.push(`Materia o tema: ${vMateria}.`);
+    if (vTipo) partes.push(`Tipo de necesidad SEND: ${vTipo}.`);
+
+    partes.push(
+      "Adapta el contenido usando lenguaje claro, frases cortas, estructura por pasos, ejemplos concretos y apoyos visuales cuando sea posible."
+    );
+
+    if (vTexto) {
+      partes.push("Contenido original del docente:");
+      partes.push(vTexto);
+    } else {
+      partes.push(
+        "No se ha proporcionado contenido base. Genera un recurso educativo accesible desde cero para este perfil SEND."
+      );
+    }
+
+    return partes.join("\n\n");
+  }
+
+  // ---------- DEMO de generación de texto (sin IA) ----------
+  function generarTextoDemo(prompt) {
+    const base = valor(textoBase);
+    if (!base) {
+      return (
+        "Ejemplo de contenido adaptado (demo):\n\n" +
+        "- Idea principal explicada de forma sencilla.\n" +
+        "- Paso 1: resumir el concepto en una frase.\n" +
+        "- Paso 2: añadir un ejemplo del día a día del alumnado.\n" +
+        "- Paso 3: comprobar la comprensión con una pequeña pregunta."
+      );
+    }
+
+    return (
+      "Versión adaptada (demo) del contenido introducido:\n\n" +
+      base
+        .split(".")
+        .map((frase) => frase.trim())
+        .filter(Boolean)
+        .map((frase, i) => `${i + 1}. ${frase}.`)
+        .join("\n")
+    );
+  }
+
+  // ---------- DEMO de generación de imagen (sin IA) ----------
+  function generarImagenDemo() {
+    // Imagen de demostración libre (placeholder)
+    // Puedes sustituir esta URL por una generada por tu backend/IA.
+    return "https://via.placeholder.com/600x400.png?text=Demo+SENDIA";
+  }
+
+  // ---------- Eventos de chips de formato ----------
+  chipsFormato.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chipsFormato.forEach((c) => c.classList.remove("is-active"));
+      chip.classList.add("is-active");
+    });
+  });
+
+  // ---------- Botón: Generar prompt ----------
+  if (btnGenerarPrompt) {
+    btnGenerarPrompt.addEventListener("click", () => {
+      const prompt = construirPrompt();
+      if (promptEditable) promptEditable.value = prompt;
+      activarTab("prompt");
+    });
+  }
+
+  // ---------- Botón: Generar contenido ----------
+  if (btnGenerarContenido) {
+    btnGenerarContenido.addEventListener("click", () => {
+      const prompt =
+        (promptEditable && promptEditable.value.trim()) || construirPrompt();
+
+      // TODO: aquí puedes llamar a tu backend / OpenAI.
+      // Por ahora usamos una versión de demostración local.
+      const textoAdaptado = generarTextoDemo(prompt);
+
+      if (resultadoTexto) {
+        resultadoTexto.textContent = textoAdaptado;
+      }
+      activarTab("texto");
+    });
+  }
+
+  // ---------- Botón: Generar pictograma / imagen ----------
+  if (btnGenerarImagen) {
+    btnGenerarImagen.addEventListener("click", () => {
+      // TODO: sustituir por llamada a tu backend / OpenAI (DALL·E, etc.)
+      const urlDemo = generarImagenDemo();
+      if (imgPictograma) {
+        imgPictograma.src = urlDemo;
+        imgPictograma.style.display = "block";
+      }
+      activarTab("imagen");
+    });
+  }
+
+  // ---------- Acciones sobre CONTENIDO ----------
+  if (btnCopiarTexto && resultadoTexto) {
+    btnCopiarTexto.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(resultadoTexto.textContent || "");
+        alert("Contenido copiado al portapapeles.");
+      } catch (e) {
+        console.error(e);
+        alert("No se pudo copiar el texto.");
+      }
+    });
+  }
+
+  if (btnCompartirTexto && resultadoTexto) {
+    btnCompartirTexto.addEventListener("click", async () => {
+      const texto = resultadoTexto.textContent || "";
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Recurso SENDIA",
+            text: texto,
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        alert("La opción de compartir no está disponible en este navegador.");
+      }
+    });
+  }
+
+  if (btnGuardarTexto && resultadoTexto) {
+    btnGuardarTexto.addEventListener("click", () => {
+      const texto = resultadoTexto.textContent || "";
+      const recursos = JSON.parse(localStorage.getItem("sendia_recursos_texto") || "[]");
+      recursos.push({
+        fecha: new Date().toISOString(),
+        contenido: texto,
+      });
+      localStorage.setItem("sendia_recursos_texto", JSON.stringify(recursos));
+      alert("Recurso guardado localmente en este navegador.");
+    });
+  }
+
+  if (btnImprimirTexto && resultadoTexto) {
+    btnImprimirTexto.addEventListener("click", () => {
+      const ventana = window.open("", "_blank");
+      if (!ventana) return;
+      ventana.document.write(
+        "<html><head><title>Imprimir recurso SENDIA</title></head><body><pre>" +
+          (resultadoTexto.textContent || "").replace(/</g, "&lt;") +
+          "</pre></body></html>"
+      );
+      ventana.document.close();
+      ventana.focus();
+      ventana.print();
+    });
+  }
+
+  if (btnDescargarMp3 && resultadoTexto) {
+    btnDescargarMp3.addEventListener("click", () => {
+      // TODO: integrar con tu servicio de TTS / OpenAI audio.
+      alert(
+        "Aquí podrás integrar la descarga en MP3 usando un servicio de texto a voz (TTS)."
+      );
+    });
+  }
+
+  // ---------- Acciones sobre IMAGEN ----------
+  if (btnDescargarImagen && imgPictograma) {
+    btnDescargarImagen.addEventListener("click", () => {
+      if (!imgPictograma.src) {
+        alert("No hay ninguna imagen para descargar.");
+        return;
+      }
+      const enlace = document.createElement("a");
+      enlace.href = imgPictograma.src;
+      enlace.download = "pictograma-sendia.png";
+      enlace.click();
+    });
+  }
+
+  if (btnCompartirImagen && imgPictograma) {
+    btnCompartirImagen.addEventListener("click", async () => {
+      if (!imgPictograma.src) {
+        alert("No hay ninguna imagen para compartir.");
+        return;
+      }
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Pictograma SENDIA",
+            text: "Pictograma generado con SENDIA",
+            url: imgPictograma.src,
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        alert(
+          "La opción de compartir imagen no está disponible en este navegador. Puedes descargarla y compartirla manualmente."
+        );
+      }
+    });
+  }
+
+  if (btnGuardarImagen && imgPictograma) {
+    btnGuardarImagen.addEventListener("click", () => {
+      if (!imgPictograma.src) {
+        alert("No hay ninguna imagen para guardar.");
+        return;
+      }
+      const recursos = JSON.parse(localStorage.getItem("sendia_recursos_imagen") || "[]");
+      recursos.push({
+        fecha: new Date().toISOString(),
+        url: imgPictograma.src,
+      });
+      localStorage.setItem("sendia_recursos_imagen", JSON.stringify(recursos));
+      alert("Imagen guardada localmente en este navegador.");
+    });
+  }
+
+  if (btnImprimirImagen && imgPictograma) {
+    btnImprimirImagen.addEventListener("click", () => {
+      if (!imgPictograma.src) {
+        alert("No hay ninguna imagen para imprimir.");
+        return;
+      }
+      const ventana = window.open("", "_blank");
+      if (!ventana) return;
+      ventana.document.write(
+        "<html><head><title>Imprimir pictograma SENDIA</title></head><body><img src='" +
+          imgPictograma.src +
+          "' style='max-width:100%;'></body></html>"
+      );
+      ventana.document.close();
+      ventana.focus();
+      ventana.print();
+    });
+  }
+
+  console.log("[SENDIA] Interfaz inicializada correctamente.");
 });
-
-
