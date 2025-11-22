@@ -1,24 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Proyecto SENDIA</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
 <div class="app">
   <main class="app-shell">
+    
+    <!-- HEADER -->
     <header class="app-header">
       <div class="app-title-row">
         <div class="app-logo">S+</div>
         <div>
-          <div class="app-title">SENDIA</div>
+          <div class="app-title">Proyecto SENDIA</div>
           <div class="app-subtitle">
             Generador inclusivo de recursos con Inteligencia Artificial
           </div>
         </div>
       </div>
       <div class="app-steps">
-        1. Elige nivel y perfil SEND · 2. Escribe el tema o pega el texto · 3. Genera el contenido adaptado
+        1. Elige nivel y perfil SEND · 2. Escribe el tema · 3. Genera contenido adaptado
       </div>
     </header>
 
+    <!-- GRID 1/3 - 2/3 -->
     <section class="app-grid">
-      <!-- Columna izquierda: formulario -->
+      
+      <!-- 1/3 IZQUIERDA -->
       <section class="card">
-        <h2 class="card-title">Configuración del recurso</h2>
+        <h2 class="card-title">Configura el recurso</h2>
 
         <div class="form-grid">
           <div class="field">
@@ -26,7 +39,6 @@
             <select class="select">
               <option>Primaria</option>
               <option>Secundaria</option>
-              <!-- ... -->
             </select>
           </div>
 
@@ -35,14 +47,13 @@
             <select class="select">
               <option>Lengua</option>
               <option>Matemáticas</option>
-              <!-- ... -->
             </select>
           </div>
 
           <div class="field">
             <label class="field-label">Perfil SEND</label>
             <select class="select">
-              <option>Cognitiva (dislexia…)</option>
+              <option>Cognitiva</option>
               <option>Comunicación / TEA</option>
               <option>Sensorial</option>
               <option>Motriz</option>
@@ -54,56 +65,98 @@
         <div class="field" style="margin-top: 1rem;">
           <label class="field-label">Texto base o tema</label>
           <div class="input-group">
-            <textarea class="textarea" placeholder="Escribe el contenido o pega el texto a adaptar..."></textarea>
+            <textarea class="textarea" id="textoBase" placeholder="Escribe el contenido..."></textarea>
             <div class="icon-buttons">
-              <button type="button" class="icon-button" title="Dictar por voz">
-                🎙️
-              </button>
-              <button type="button" class="icon-button" title="Subir archivo">
-                ⬆️
-              </button>
+              <button type="button" class="icon-button">🎙️</button>
+              <button type="button" class="icon-button">⬆️</button>
             </div>
           </div>
         </div>
 
         <div class="field" style="margin-top: 0.75rem;">
-          <label class="field-label">Tipo de recurso a generar</label>
+          <label class="field-label">Tipo de recurso</label>
           <div class="chip-group">
             <button type="button" class="chip is-active">Texto simplificado</button>
             <button type="button" class="chip">Pictogramas / Imagen</button>
             <button type="button" class="chip">Audio / Narración</button>
-            <button type="button" class="chip">Actividad interactiva</button>
           </div>
         </div>
 
         <div class="actions-row">
-          <button class="btn btn-primary" type="button">
-            ⚙️ Generar prompt
-          </button>
-          <button class="btn btn-secondary" type="button">
-            ✨ Generar contenido
-          </button>
+          <button class="btn btn-primary">⚙️ Generar prompt</button>
+          <button class="btn btn-secondary">✨ Generar contenido</button>
         </div>
       </section>
 
-      <!-- Columna derecha: resultados -->
+      <!-- 2/3 DERECHA -->
       <section class="card">
         <h2 class="card-title">Resultados</h2>
 
         <div class="results-tabs">
-          <button class="results-tab is-active">Prompt</button>
-          <button class="results-tab">Contenido</button>
+          <button class="results-tab is-active" data-tab="prompt">Prompt</button>
+          <button class="results-tab" data-tab="contenido">Contenido</button>
+          <button class="results-tab" data-tab="imagen">Imagen</button>
         </div>
 
-        <div class="results-box">
-          <p>Aquí se mostrará el prompt o el contenido generado por la IA...</p>
+        <!-- PANEL PROMPT EDITABLE -->
+        <div class="results-panel is-active" data-panel="prompt">
+          <label class="field-label">Prompt editable</label>
+          <textarea id="promptEditable" class="prompt-textarea" placeholder="Aquí podrás editar el prompt..."></textarea>
         </div>
 
-        <div class="actions-row" style="margin-top: 0.9rem;">
-          <button class="btn btn-secondary" type="button">📋 Copiar</button>
-          <button class="btn btn-secondary" type="button">⬇️ Descargar</button>
+        <!-- PANEL CONTENIDO -->
+        <div class="results-panel" data-panel="contenido">
+          <label class="field-label">Contenido adaptado para el alumnado SEND</label>
+
+          <div class="results-box" id="resultadoTexto">
+            El contenido generado aparecerá aquí.
+          </div>
+
+          <div class="actions-row results-actions">
+            <button class="btn btn-secondary">📋 Copiar</button>
+            <button class="btn btn-secondary">🔗 Compartir</button>
+            <button class="btn btn-secondary">💾 Guardar como recurso</button>
+            <button class="btn btn-secondary">🎧 Descargar MP3</button>
+            <button class="btn btn-secondary">🖨️ Imprimir</button>
+          </div>
+        </div>
+
+        <!-- PANEL IMAGEN -->
+        <div class="results-panel" data-panel="imagen">
+          <label class="field-label">Pictograma / imagen generada</label>
+
+          <div class="results-box results-box--image">
+            <img id="imgPictograma" src="" alt="Imagen generada" style="max-width: 100%; display: none;">
+          </div>
+
+          <div class="actions-row results-actions">
+            <button class="btn btn-secondary">⬇️ Descargar</button>
+            <button class="btn btn-secondary">🔗 Compartir</button>
+            <button class="btn btn-secondary">💾 Guardar como recurso</button>
+            <button class="btn btn-secondary">🖨️ Imprimir</button>
+          </div>
         </div>
       </section>
+
     </section>
   </main>
 </div>
+
+<script>
+/* Gestión de pestañas */
+document.querySelectorAll(".results-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".results-tab").forEach(t => t.classList.remove("is-active"));
+    tab.classList.add("is-active");
+
+    const selected = tab.dataset.tab;
+    document.querySelectorAll(".results-panel").forEach(panel => {
+      panel.classList.toggle("is-active", panel.dataset.panel === selected);
+    });
+  });
+});
+</script>
+
+</body>
+</html>
+
