@@ -1,0 +1,82 @@
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #111;
+}
+
+header {
+  padding: 1rem;
+  text-align: center;
+  background: #f3f3f3;
+  border-bottom: 1px solid #ddd;
+}
+
+.container {
+  display: flex;
+  height: calc(100vh - 150px);
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.configuracion {
+  flex: 1;
+  max-width: 33%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #fafafa;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.resultados {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #fdfdfd;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow-y: auto;
+}
+
+textarea {
+  width: 100%;
+  height: 120px;
+  resize: vertical;
+  padding: 0.5rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-top: 0.2rem;
+}
+
+.botones-tipo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.resultado-scroll {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 0.75rem;
+  background: #fff;
+  min-height: 100px;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
