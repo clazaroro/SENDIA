@@ -13,7 +13,7 @@ export async function onRequest(context) {
 
     const res = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
-      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      headers: { "Authorization": f"Bearer ${apiKey}", "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "dall-e-3",
         prompt,
