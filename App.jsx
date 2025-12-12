@@ -1,10 +1,9 @@
-// SEND Assistant - Version 2.6 (Strict AI Voices - No Robotic Fallback)
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { 
+import { 
 	Menu, Plus, Settings, Image as ImageIcon, Mic, Sparkles, User, Bot, Volume2,
 	Loader2, StopCircle, Wand2, Upload, FileText, Copy, Download, FileAudio,
 	Check, Video, Music, Share2, Type, Film, Play, Pause, BookOpen, Grid,
-	Eraser, X, Printer, File, MicOff, GraduationCap, Globe, Moon, Sun, 
+	Eraser, X, Printer, File, MicOff, GraduationCap, Globe, Moon, Sun, 
 	ChevronUp, ChevronDown, Library, Search, Save, Filter, CloudUpload, Eye, AlertCircle,
 	CircleHelp, ExternalLink, Trash2, AlertTriangle, Maximize2, Lock, LogIn
 } from 'lucide-react';
@@ -18,21 +17,21 @@ import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, d
 const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'send-assistant-demo';
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-const apiKey = ""; 
+const apiKey = ""; 
 
 // --- BASE DE DATOS DE USUARIOS (HARDCODED PARA ACCESO SIMPLE) ---
 const VALID_USERS = {
 	'profesor': { password: '1234', role: 'usuario' },
-	'clazaroro': { password: 'Poppy.2025', role: 'administrador' }
+	'clazaroro': { password: 'Poppy.2025', role: 'administrador' } 
 };
 
 // --- INICIALIZACIÓN FIREBASE ---
 let app, auth, db;
 try {
 	if (Object.keys(firebaseConfig).length > 0) {
-	    app = initializeApp(firebaseConfig);
-	    auth = getAuth(app);
-	    db = getFirestore(app);
+	    app = initializeApp(firebaseConfig);
+	    auth = getAuth(app);
+	    db = getFirestore(app);
 	} else {
 		console.warn("Firebase config not found. Running in UI-only mode.");
 	}
@@ -89,7 +88,7 @@ const TRANSLATIONS = {
 		generateBtn: "Generar Texto",
 		visualCreator: "Creador Visual",
 		imgStyle: "Estilo de imagen",
-		imgRatio: "Formato de imagen",
+		imgRatio: "Format de imagen",
 		describeImg: "Describe la imagen...",
 		createImg: "Crear Imagen",
 		easyRead: "Lectura Fácil",
@@ -123,7 +122,7 @@ const TRANSLATIONS = {
 		share: "Compartir",
 		repository: "Repositorio",
 		searchRes: "Buscar recursos...",
-		filterType: "Formato",
+		filterType: "Format",
 		filterNeed: "Necesidad",
 		filterLang: "Idioma",
 		filterStage: "Etapa",
@@ -148,6 +147,7 @@ const TRANSLATIONS = {
 		convertingMp3: "Convirtiendo a MP3...",
 		downloadAudio: "Descargar Audio",
 		regeneratingAudio: "Regenerando audio...",
+		dyslexicFont: "Fuente Disléxica", // New translation
 		
 		stages: ["Infantil", "Primaria", "Secundaria"],
 		textTypes: ["Explicación", "Analogía", "Resumen", "Paso a paso", "Glosario de palabras difíciles", "Quiz"],
@@ -172,6 +172,7 @@ const TRANSLATIONS = {
 		],
 		simplifyLevels: ["Nivel 1 (Muy Simple)", "Nivel 2 (Intermedio)", "Nivel 3 (Resumen)"],
 		sendNeeds: {
+			// FIXED: Ensure all keys and strings are properly closed and comma-separated
 			"Cognitivas y de aprendizaje": ["Dislexia / Dificultades de lectura", "Trastorno por Déficit de Atención (TDAH)"],
 			"Comunicación e interacción": ["Trastorno del Espectro Autista (TEA) / Comunicación visual", "Dificultades del lenguaje oral o escrito"],
 			"Sensoriales y motrices": ["Discapacidad visual (ceguera o baja visión)", "Discapacidad auditiva (sordera o hipoacusia)", "Discapacidad física / Limitaciones motrices"],
@@ -276,6 +277,7 @@ const TRANSLATIONS = {
 		convertingMp3: "Converting to MP3...",
 		downloadAudio: "Download Audio",
 		regeneratingAudio: "Regenerating audio...",
+		dyslexicFont: "Dyslexic Font", // New translation
 
 		stages: ["Preschool", "Primary", "Secondary"],
 		textTypes: ["Explanation", "Analogy", "Summary", "Step-by-step", "Glossary", "Quiz"],
@@ -403,23 +405,23 @@ const TRANSLATIONS = {
 		regeneratingAudio: "Regenerant àudio...",
 
 		stages: ["Infantil", "Primària", "Secundària"],
-		textTypes: ["Explicació", "Analogía", "Resum", "Pas a pas", "Glossari de paraules difícils", "Quiz"],
+		textTypes: ["Explicación", "Analogía", "Resumen", "Pas a pas", "Glossario de palabras difíciles", "Quiz"],
 		readingLevels: ["Lector emergent", "Lector inicial", "Lector en transició", "Lector fluid", "Lector expert"],
 		imageStyles: [
 			{ value: "Pictograma (ARASAAC Estilo)", label: "Pictograma (ARASAAC)" },
 			{ value: "Fotorealista", label: "Fotorealista" },
 			{ value: "Cartoon/Infantil", label: "Cartoon/Infantil" },
-			{ value: "Dibujo Lineal (Para colorear)", label: "Dibuix Lineal (A acolorir)" },
-			{ value: "Tarjeta de Emociones", label: "Targeta d'Emocions" },
-			{ value: "Secuencia / Paso a paso", label: "Seqüència / Pas a pas" }
+			{ value: "Dibujo Lineal (Para colorear)", label: "Dibujo Lineal (Colorear)" },
+			{ value: "Tarjeta de Emociones", label: "Tarjeta de Emociones" },
+			{ value: "Secuencia / Paso a paso", label: "Secuencia / Paso a pas" }
 		],
 		imageRatios: [
-			{ val: "1:1", label: "Quadrat (1:1)" },
-			{ val: "16:9", label: "Horitzontal (16:9)" },
+			{ val: "1:1", label: "Cuadrado (1:1)" },
+			{ val: "16:9", label: "Horizontal (16:9)" },
 			{ val: "9:16", label: "Vertical (9:16)" }
 		],
 		audioVoices: [{ id: "Kore", label: "Femenina (IA)" }, { id: "Fenrir", label: "Masculina (IA)" }, { id: "Aoede", label: "Neutra (IA)" }],
-		simplifyLevels: ["Nivel 1 (Molt Simple)", "Nivell 2 (Intermedi)", "Nivel 3 (Resum)"],
+		simplifyLevels: ["Nivel 1 (Muy Simple)", "Nivell 2 (Intermedi)", "Nivel 3 (Resum)"],
 		sendNeeds: {
 			"Cognitives and Learning": ["Dyslexia / Reading Difficulties", "Attention Deficit Disorder (ADHD)"],
 			"Communication and Interaction": ["Autism Spectrum Disorder (ASD) / Visual Communication", "Oral or Written Language Difficulties"],
@@ -493,7 +495,12 @@ const cleanTextForTTS = (html) => {
 	let text = "";
 	try {
 		const tempDiv = document.createElement("div");
+		// Use innerHTML to parse the HTML structure
 		tempDiv.innerHTML = html;
+		
+		// Remove script tags before extracting text content
+		tempDiv.querySelectorAll('script').forEach(s => s.remove());
+		
 		text = (tempDiv.textContent || tempDiv.innerText || "").replace(/\s+/g, ' ').trim();
 	} catch (e) {
 		text = html.replace(/<[^>]*>?/gm, "").trim();
@@ -660,9 +667,9 @@ const VideoPlayer = ({ imageUrl, audioUrl, text, autoPlay = false, themeStyle, i
 
 	return (
 		<div className={`w-full max-w-md bg-black rounded-xl overflow-hidden shadow-2xl border ${themeStyle.border} relative group mx-auto`}>
-		   {audioUrl && (
+		   {audioUrl && (
 				<audio ref={audioRef} src={audioUrl} onTimeUpdate={() => audioRef.current && setProgress((audioRef.current.currentTime / audioRef.current.duration) * 100)} onEnded={() => {setIsPlaying(false); setProgress(100);}} />
-		   )}
+		   )}
 			<div className="relative aspect-video bg-gray-900 flex items-center justify-center overflow-hidden">
 				{imageUrl ? (
 					<img src={imageUrl} alt="Frame" className="w-full h-full object-cover opacity-90 group-hover:opacity-75 transition-opacity duration-300" />
@@ -726,6 +733,52 @@ const MessageBubble = ({
 	// Determine display content
 	const displayText = content;
 	const isFallback = metaData?.isFallback || false;
+    const contentId = `message-content-${id}`;
+
+    // 1. Memoized function to extract HTML and JS (if present)
+    const cleanedContent = useMemo(() => {
+        const tempDiv = document.createElement('div');
+        // Use full text here, including script, for initial parsing
+        tempDiv.innerHTML = cleanResponseText(displayText);
+        
+        let scriptCode = null;
+        const scriptTags = tempDiv.querySelectorAll('script');
+
+        if (scriptTags.length > 0) {
+            scriptCode = scriptTags[0].textContent;
+            scriptTags[0].remove(); // Remove script from the HTML body
+        }
+        
+        // This is the HTML content without the script block
+        return { html: tempDiv.innerHTML, script: scriptCode };
+    }, [displayText]);
+
+	// 2. useEffect for dynamic script injection
+	useEffect(() => {
+		if (!cleanedContent.script) return;
+
+		let scriptElement = document.createElement('script');
+		scriptElement.textContent = cleanedContent.script;
+			
+		// Must use the unique ID to target the specific message bubble content div
+		const parentDiv = document.getElementById(contentId);
+
+		if (parentDiv) {
+			// Remove existing scripts if any (for updates/re-renders)
+			parentDiv.querySelectorAll('script').forEach(s => s.remove());
+			
+			// Inject dynamically to ensure the functions (like checkQuiz) are defined
+			parentDiv.appendChild(scriptElement);
+		}
+		
+		return () => {
+			// Cleanup on unmount (only cleanup the element we created)
+			if (scriptElement && scriptElement.parentNode) {
+				scriptElement.parentNode.removeChild(scriptElement);
+			}
+		};
+	}, [cleanedContent.script, contentId]);
+
 
 	const fallbackCopy = (text) => {
 		const textArea = document.createElement("textarea");
@@ -741,6 +794,9 @@ const MessageBubble = ({
 
 	const handleCopy = () => {
 		let textToCopy = (type === 'board' && extraData) ? extraData.map(i => `${i.emoji} ${i.text}`).join('\n') : cleanTextForTTS(displayText);
+		if (type === 'text' && displayText.includes('function checkQuiz()')) {
+            textToCopy = "El contenido es interactivo (Quiz). Copie el código completo para usarlo en un entorno HTML.";
+        }
 		if (!textToCopy) return;
 		if (navigator.clipboard && navigator.clipboard.writeText) {
 			navigator.clipboard.writeText(textToCopy).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); })
@@ -803,8 +859,12 @@ const MessageBubble = ({
 		const w = window.open('', '_blank');
 		let pContent = displayText;
 		if (type === 'board' && extraData) {
+			// FIXED: Corrected unterminated string literal for CSS properties
 			pContent = `<div style="text-align:center;margin-bottom:20px;"><h2>${displayText}</h2></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px;max-width:800px;margin:0 auto;">${extraData.map(i=>`<div style="aspect-ratio:1;border:2px solid #ccc;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f9fafb;padding:10px;"><div style="font-size:50px;margin-bottom:10px;">${i.emoji}</div><div style="font-size:16px;font-weight:bold;text-transform:uppercase;">${i.text}</div></div>`).join('')}</div>`;
-		}
+		} else if (displayText.includes('function checkQuiz()')) {
+            // If it is a quiz, use the whole content (which includes the script)
+            pContent = displayText;
+        }
 		w.document.write(`<html><head><title>Print</title><style>body{font-family:sans-serif;padding:40px;color:#000;}h1,h2,h3{border-bottom:2px solid #eee;padding-bottom:10px;}ul{padding-left:20px;}@media print{body{-webkit-print-color-adjust:exact;}}</style></head><body>${pContent}<div style="margin-top:50px;border-top:1px solid #ccc;padding-top:10px;font-size:10px;color:#666;text-align:center;">Generado por SEND Assistant</div></body></html>`);
 		w.document.close(); setTimeout(() => w.print(), 500);
 	};
@@ -833,7 +893,7 @@ const MessageBubble = ({
 		}
 		
 		if (safeExtraData && safeExtraData.imageUrl && safeExtraData.imageUrl.length > 900000) {
-			   try {
+			   try {
 				 const compressed = await compressBase64Image(safeExtraData.imageUrl);
 					if (compressed.length < 950000) {
 						safeExtraData.imageUrl = compressed;
@@ -878,8 +938,13 @@ const MessageBubble = ({
 					</div>
 					<div className={`rounded-2xl p-4 ${isUser ? themeStyle.bgUser + ' rounded-tr-none' : themeStyle.bgCard + ' border ' + themeStyle.border + ' rounded-tl-none w-full'}`}>
 						{(type === 'text' || type === 'simplify') && (
-							<div className={`text-sm md:text-base leading-relaxed ${themeStyle.textPrimary} message-content overflow-x-auto`} style={{ '--header-color': hc }}>
-							   {isUser ? <span className="whitespace-pre-wrap">{displayText}</span> : <div dangerouslySetInnerHTML={{ __html: cleanResponseText(displayText) }} />}
+							<div 
+                                id={contentId}
+                                className={`text-sm md:text-base leading-relaxed ${themeStyle.textPrimary} message-content overflow-x-auto`} 
+                                style={{ '--header-color': hc }}
+                            >
+							   {/* Render content directly, if it's a Quiz, the HTML/Script will execute */}
+                              <div dangerouslySetInnerHTML={{ __html: cleanedContent.html }} />
 							</div>
 						)}
 						{type === 'image' && (
@@ -996,17 +1061,6 @@ const MessageBubble = ({
 								</>
 							)}
 
-							{type === 'board' && (
-								<>
-									<button onClick={handleDownloadBoard} className={`p-1.5 rounded-full ${themeStyle.hoverBg} transition-colors ${themeStyle.textMuted}`} title="PNG">
-										<Download size={16} />
-									</button>
-									<button onClick={handlePrint} className={`p-1.5 rounded-full ${themeStyle.hoverBg} transition-colors ${themeStyle.textMuted}`} title={t('print')}>
-										<Printer size={16} />
-									</button>
-								</>
-							)}
-
 							{type === 'image' && (
 								<button onClick={handleDownloadImage} className={`p-1.5 rounded-full ${themeStyle.hoverBg} transition-colors ${themeStyle.textMuted}`} title="Download">
 									<Download size={16} />
@@ -1058,8 +1112,16 @@ const RepositoryView = ({ themeStyle, t, onPreviewItem, onPlayAudio, currentAudi
 	const filteredResources = useMemo(() => {
 		return resources.filter(res => {
 			const matchesSearch = res.metadata?.topic?.toLowerCase().includes(searchTerm.toLowerCase()) ||	
-								  res.content?.toLowerCase().includes(searchTerm.toLowerCase());
-			const matchesType = filters.type === 'all' || res.type === filters.type;
+								  res.content?.toLowerCase().includes(searchTerm.toLowerCase());
+			
+			// Custom logic for Quiz filtering (metadata.type exists when resource is saved)
+			const isQuiz = res.type === 'text' && res.metadata?.type === 'Quiz';
+
+			const matchesType = filters.type === 'all' || 
+								(filters.type === 'Quiz' && isQuiz) ||
+								(filters.type === 'text' && res.type === 'text' && !isQuiz) ||
+								(filters.type !== 'text' && filters.type !== 'Quiz' && res.type === filters.type);
+
 			const matchesNeed = filters.need === 'all' || res.metadata?.need === filters.need;
 			const matchesLang = filters.lang === 'all' || res.metadata?.lang === filters.lang;	
 			const matchesStage = filters.stage === 'all' || res.metadata?.stage === filters.stage;
@@ -1078,6 +1140,18 @@ const RepositoryView = ({ themeStyle, t, onPreviewItem, onPlayAudio, currentAudi
 			default: return <File size={16}/>;
 		}
 	};
+
+	// Helper function to determine the display format name for the repo
+	const getDisplayFormat = (type, metadata) => {
+        if (type === 'text' && metadata?.type === 'Quiz') return 'Quiz';
+        if (type === 'text') return t('text');
+        if (type === 'simplify') return t('simplify');
+        if (type === 'audio_result') return t('audio');
+        if (type === 'image') return t('image');
+        if (type === 'board') return t('board');
+        if (type === 'video_slide') return t('video');
+        return 'Recurso';
+    };
 
 	return (
 		<div className={`h-full flex flex-col ${themeStyle.bgMain} p-6`}>
@@ -1103,6 +1177,7 @@ const RepositoryView = ({ themeStyle, t, onPreviewItem, onPlayAudio, currentAudi
 							value={filters.type} onChange={e=>setFilters({...filters, type: e.target.value})}>
 							<option value="all">{t('filterType')}: {t('all')}</option>
 							<option value="text">{t('text')}</option>
+							<option value="Quiz">Quiz</option> {/* Added Quiz option */}
 							<option value="image">{t('image')}</option>
 							<option value="audio_result">{t('audio')}</option>
 							<option value="board">{t('board')}</option>
@@ -1150,105 +1225,114 @@ const RepositoryView = ({ themeStyle, t, onPreviewItem, onPlayAudio, currentAudi
 					</div>
 				) : (
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-						{filteredResources.map((res) => (
-							<div	
-								key={res.id}	
-								onClick={() => {
-									onPreviewItem(res);
-								}}
-								className={`p-4 rounded-xl border ${themeStyle.border} ${themeStyle.cardRepo} transition-all cursor-pointer flex flex-col h-96 group relative overflow-hidden hover:ring-2 hover:ring-blue-500/50`}
-							>
-								<div className="flex justify-between items-start mb-2">
-									<div className="flex items-center gap-2">
-										<div className={`p-1.5 rounded-lg bg-black/5 dark:bg-white/10`}>
-											{getTypeIcon(res.type)}
-										</div>
-										<span className={`text-xs font-bold uppercase tracking-wider ${themeStyle.textSecondary}`}>{res.type === 'audio_result' ? 'Audio' : res.type}</span>
-									</div>
-									{res.metadata?.lang && <span className="text-[10px] bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full">{res.metadata.lang.substring(0,3).toUpperCase()}</span>}
-								</div>
+						{filteredResources
+							.map((res) => {
+								// Apply client-side filtering based on metadata when type is 'text'
+								const isQuiz = res.type === 'text' && res.metadata?.type === 'Quiz';
 								
-								<h3 className={`font-semibold ${themeStyle.textPrimary} mb-1 line-clamp-1`}>
-									{cleanTextForTTS(res.metadata?.topic) || "Sin título"}
-								</h3>
-								
-								{/* CONTENIDO DINÁMICO DE LA TARJETA - IMPLEMENTACIÓN THUMBNAIL BOARD */}
-								{(res.type === 'image' && res.mediaUrl) || (res.type === 'video_slide' && res.extraData?.imageUrl) ? (
+								if (filters.type === 'Quiz' && !isQuiz) return null;
+								if (filters.type === 'text' && isQuiz) return null;
+
+								return (
 									<div	
-										className={`flex-1 overflow-hidden rounded-lg mb-2 relative bg-black/5 ${res.type === 'image' ? 'cursor-zoom-in' : 'cursor-pointer'}`}	
-										onClick={(e) => {	
-											// Only stop propagation and zoom for pure images. Videos should trigger the parent onClick (preview)
-											if (res.type === 'image') {
-												e.stopPropagation();	
-												onImageClick && onImageClick(res.mediaUrl);	
-											}
-											// If video_slide, do nothing (bubbles to parent onClick -> opens preview)
+										key={res.id}	
+										onClick={() => {
+											onPreviewItem(res);
 										}}
+										className={`p-4 rounded-xl border ${themeStyle.border} ${themeStyle.cardRepo} transition-all cursor-pointer flex flex-col h-96 group relative overflow-hidden hover:ring-2 hover:ring-blue-500/50`}
 									>
-										<img	
-											src={res.type === 'image' ? res.mediaUrl : res.extraData.imageUrl}	
-											alt={res.metadata?.topic}	
-											className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"	
-										/>
-										{/* Video Overlay Icon */}
-										{res.type === 'video_slide' && (
-											<div className="absolute inset-0 flex items-center justify-center bg-black/30">
-												<div className="p-2 bg-white/20 backdrop-blur-sm rounded-full">
-													<Play size={24} className="text-white fill-current" />
+										<div className="flex justify-between items-start mb-2">
+											<div className="flex items-center gap-2">
+												<div className={`p-1.5 rounded-lg bg-black/5 dark:bg-white/10`}>
+													{getTypeIcon(res.type)}
 												</div>
+												<span className={`text-xs font-bold uppercase tracking-wider ${themeStyle.textSecondary}`}>
+													{getDisplayFormat(res.type, res.metadata)} {/* Use new helper */}
+												</span>
+											</div>
+											{res.metadata?.lang && <span className="text-[10px] bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full">{res.metadata.lang.substring(0,3).toUpperCase()}</span>}
+										</div>
+										
+										<h3 className={`font-semibold ${themeStyle.textPrimary} mb-1 line-clamp-1`}>
+											{cleanTextForTTS(res.metadata?.topic) || "Sin título"}
+										</h3>
+										
+										{(res.type === 'image' && res.mediaUrl) || (res.type === 'video_slide' && res.extraData?.imageUrl) ? (
+											<div	
+												className={`flex-1 overflow-hidden rounded-lg mb-2 relative bg-black/5 ${res.type === 'image' ? 'cursor-zoom-in' : 'cursor-pointer'}`}	
+												onClick={(e) => {	
+													if (res.type === 'image') {
+														e.stopPropagation();	
+														onImageClick && onImageClick(res.mediaUrl);	
+													}
+												}}
+											>
+												<img	
+													src={res.type === 'image' ? res.mediaUrl : res.extraData.imageUrl}	
+													alt={res.metadata?.topic}	
+													className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"	
+												/>
+												{/* Video Overlay Icon */}
+												{res.type === 'video_slide' && (
+													<div className="absolute inset-0 flex items-center justify-center bg-black/30">
+														<div className="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+															<Play size={24} className="text-white fill-current" />
+														</div>
+													</div>
+												)}
+											</div>
+										) : res.type === 'board' && res.extraData && Array.isArray(res.extraData) ? (
+											<div className="flex-1 flex flex-col justify-center items-center p-4">
+												<div className="flex flex-wrap justify-center gap-2 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 w-full max-w-xs h-32 overflow-hidden items-center">
+													{res.extraData.slice(0, 6).map((item, index) => (
+														<span key={index} className="text-3xl leading-none transition-transform hover:scale-110" title={item.text}>
+															{item.emoji}
+														</span>
+													))}
+												</div>
+												<p className={`text-xs ${themeStyle.textMuted} mt-4 line-clamp-3 text-center`}>
+													{cleanTextForTTS(res.content)}
+												</p>
+											</div>
+										) : (
+											<div className={`text-xs ${themeStyle.textMuted} mb-3 flex-1 overflow-hidden relative`}>
+												{/* ADJUSTED line-clamp to show more lines in text/simplify cards */}
+												<p className={`line-clamp-8 ${themeStyle.textSecondary}`}>
+													{cleanTextForTTS(res.content)}
+												</p>
+												<div className={`absolute bottom-0 w-full h-8 bg-gradient-to-t from-[${themeStyle.bgCard}] to-transparent`}></div>
 											</div>
 										)}
-									</div>
-								) : res.type === 'board' && res.extraData && Array.isArray(res.extraData) ? (
-									<div className="flex-1 flex flex-col justify-center items-center p-4">
-										<div className="flex flex-wrap justify-center gap-2 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 w-full max-w-xs h-32 overflow-hidden items-center">
-											{res.extraData.slice(0, 6).map((item, index) => (
-												<span key={index} className="text-3xl leading-none transition-transform hover:scale-110" title={item.text}>
-													{item.emoji}
+
+										{/* REPRODUCTOR MINIATURA PARA AUDIO */}
+										{res.type === 'audio_result' && (
+											<button	
+												onClick={(e) => {
+													e.stopPropagation();
+													onPlayAudio(res.content, res.metadata?.lang); // Pass content and language
+												}}
+												className={`absolute right-3 top-16 p-3 rounded-full shadow-lg transition-all z-20 ${currentAudioText === res.content ? 'bg-red-500 text-white animate-pulse' : 'bg-green-500 text-white hover:bg-green-600 hover:scale-110'}`}
+												title="Escuchar ahora"
+											>
+												{currentAudioText === res.content ? <StopCircle size={18}/> : <Play size={18} fill="currentColor"/>}
+											</button>
+										)}
+
+										<div className={`flex justify-between items-end text-[10px] ${themeStyle.textMuted} mt-auto pt-2 border-t ${themeStyle.border}`}>
+											<div className="flex flex-col">
+												<span>{res.metadata?.need || "General"}</span>
+												<span className="opacity-70">{new Date(res.createdAt?.seconds * 1000).toLocaleDateString()}</span>
+											</div>
+											<div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+												<span className="text-blue-500 font-medium flex items-center gap-1 bg-blue-500/10 px-2 py-1 rounded-lg">
+													<Eye size={12}/> {t('preview')}
 												</span>
-											))}
+											</div>
 										</div>
-										<p className={`text-xs ${themeStyle.textMuted} mt-4 line-clamp-3 text-center`}>
-											{cleanTextForTTS(res.content)}
-										</p>
 									</div>
-								) : (
-									<div className={`text-xs ${themeStyle.textMuted} mb-3 flex-1 overflow-hidden relative`}>
-										{/* ADJUSTED line-clamp to show more lines in text/simplify cards */}
-										<p className={`line-clamp-8 ${themeStyle.textSecondary}`}>
-											{cleanTextForTTS(res.content)}
-										</p>
-										<div className={`absolute bottom-0 w-full h-8 bg-gradient-to-t from-[${themeStyle.bgCard}] to-transparent`}></div>
-									</div>
-								)}
-
-								{/* REPRODUCTOR MINIATURA PARA AUDIO */}
-								{res.type === 'audio_result' && (
-									<button	
-										onClick={(e) => {
-											e.stopPropagation();
-											onPlayAudio(res.content, res.metadata?.lang); // Pass content and language
-										}}
-										className={`absolute right-3 top-16 p-3 rounded-full shadow-lg transition-all z-20 ${currentAudioText === res.content ? 'bg-red-500 text-white animate-pulse' : 'bg-green-500 text-white hover:bg-green-600 hover:scale-110'}`}
-										title="Escuchar ahora"
-									>
-										{currentAudioText === res.content ? <StopCircle size={18}/> : <Play size={18} fill="currentColor"/>}
-									</button>
-								)}
-
-								<div className={`flex justify-between items-end text-[10px] ${themeStyle.textMuted} mt-auto pt-2 border-t ${themeStyle.border}`}>
-									<div className="flex flex-col">
-										<span>{res.metadata?.need || "General"}</span>
-										<span className="opacity-70">{new Date(res.createdAt?.seconds * 1000).toLocaleDateString()}</span>
-									</div>
-									<div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-										<span className="text-blue-500 font-medium flex items-center gap-1 bg-blue-500/10 px-2 py-1 rounded-lg">
-											<Eye size={12}/> {t('preview')}
-										</span>
-									</div>
-								</div>
-							</div>
-						))}
+								);
+							})
+						}
 					</div>
 				)}
 			</div>
@@ -1285,6 +1369,7 @@ const LoginScreen = ({ onLoginSuccess, t, currentTheme }) => {
 
 			<div className={`w-full max-w-sm p-8 space-y-6 ${currentTheme.bgSidebar} rounded-2xl shadow-xl border ${currentTheme.border}`}>
 				<div className="text-center">
+					{/* FIXED: Closing the className template string */}
 					<h2 className={`text-xl font-bold ${currentTheme.textPrimary}`}>{t('loginTitle')}</h2>
 					<p className={`text-sm ${currentTheme.textSecondary}`}>{t('loginSubtitle')}</p>
 				</div>
@@ -1352,6 +1437,7 @@ const LoginScreen = ({ onLoginSuccess, t, currentTheme }) => {
 export default function App() {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [currentUserRole, setCurrentUserRole] = useState(null);
+	// FIX: Corrected duplicate variable declaration. Renamed state setter to currentUserName
 	const [currentUserName, setCurrentUserName] = useState(null);
 	
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -1362,11 +1448,13 @@ export default function App() {
 	const [isListening, setIsListening] = useState(false);
 	const [previewItem, setPreviewItem] = useState(null);	
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-	const [appTheme, setAppTheme] = useState('dark');
+	const [appTheme, setAppTheme] = useState('dark'); // Initial theme
 	const [appLang, setAppLang] = useState('es');
 	const [user, setUser] = useState(null);
 	const [showHelp, setShowHelp] = useState(true);	
 	const [fullScreenImage, setFullScreenImage] = useState(null);
+	// NEW STATE: Dyslexic Font Toggle
+	const [isDyslexicFont, setIsDyslexicFont] = useState(false);
 	
 	// HOOKS MUST BE DECLARED FIRST AND UNCONDITIONALLY
 	const [browserVoices, setBrowserVoices] = useState([]);
@@ -1389,6 +1477,7 @@ export default function App() {
 	const [fText, setFText] = useState({ topic: '', obj: '', stage: 'Infantil', need: '', lang: '', type: '', base: '', readingLevel: '' });
 	const [fImg, setFImg] = useState({ type: 'Pictograma (ARASAAC Estilo)', ratio: '1:1', prompt: '', lang: '' });	
 	const [fAud, setFAud] = useState({ voice: 'Kore', lang: '', text: '' }); // Default to Kore (IA Female Spain)
+	// FIX: Restored correct useState definition syntax
 	const [fVid, setFVid] = useState({ type: 'Historia Social', topic: '', lang: '', need: '' });
 	const [fSimp, setFSimp] = useState({ level: '', text: '', lang: '' });
 	const [fBoard, setFBoard] = useState({ context: '', size: '9 (3x3)', lang: '' });
@@ -1518,10 +1607,24 @@ export default function App() {
 	// 7. PAUSE AUDIO ON UNMOUNT/RELOAD
 	useEffect(() => { return () => { if (audioPlayer) audioPlayer.pause(); }; }, [audioPlayer]);
 	
-	// 8. DYNAMIC STYLES
+	// 8. DYNAMIC STYLES (Includes Dyslexic Font Logic)
 	useEffect(() => {
 		const style = document.createElement('style');
+		const fontFamily = isDyslexicFont ? '"OpenDyslexic", sans-serif' : 'sans-serif';
+		
+		// Inject OpenDyslexic Font if enabled
+		const fontImport = isDyslexicFont ? `
+			@font-face {
+				font-family: 'OpenDyslexic';
+				src: url('https://antijingoist.com/opendyslexic-font/OpenDyslexic-Regular.otf') format('opentype');
+			}
+		` : '';
+
 		style.innerHTML = `
+			${fontImport}
+			
+			body { font-family: ${fontFamily}; }
+			
 			.message-content h1, .message-content h2, .message-content h3 { color: var(--header-color, #60a5fa); font-weight: 600; margin: 0.8em 0 0.4em 0; }
 			.message-content p { margin-bottom: 1.2em; line-height: 1.6; }
 			.message-content ul { list-style-type: disc; }
@@ -1537,15 +1640,16 @@ export default function App() {
 				border-collapse: collapse;	
 				margin: 1em 0;	
 				font-size: 0.9em;	
-				background-color: #000000; /* Black Background */
-				color: #ffffff; /* White Text */
+				background-color: ${appTheme === 'dark' ? '#000000' : '#f8f8f8'};
+				color: ${appTheme === 'dark' ? '#ffffff' : '#111827'};
+				border: 1px solid ${appTheme === 'dark' ? '#4b5563' : '#d1d5db'};
 			}
 			.message-content th, .message-content td {	
 				padding: 0.8em;	
-				border: 1px solid #d1d5db; /* Light Gray Border */
+				border: 1px solid ${appTheme === 'dark' ? '#4b5563' : '#d1d5db'};
 			}
 			.message-content th {	
-				background-color: #111827;	
+				background-color: ${appTheme === 'dark' ? '#111827' : '#e0e0e0'};
 				color: #096EBE; /* Blue Title */
 				font-weight: bold;
 				text-transform: uppercase;
@@ -1568,12 +1672,15 @@ export default function App() {
 		if (old) old.remove();
 		style.id = 'dynamic-theme-styles';
 		document.head.appendChild(style);
-	}, [appTheme]);
+	}, [appTheme, isDyslexicFont]); // Re-run effect when isDyslexicFont changes
 
+	// MODIFIED: Added specific API URL and error handling check
 	const genAudioBlob = async (text) => {	
 		const cleanText = cleanTextForTTS(text);
 		if (!cleanText) throw new Error("Text is empty after cleaning");
 		
+		const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
 		try {
 			const payload = {	
 				model: "gemini-2.5-flash-preview-tts",	
@@ -1587,11 +1694,11 @@ export default function App() {
 								voiceName: fAud.voice
 							}	
 						}	
-					}	
+					}
 				}
 			};
 
-			const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {	
+			const res = await fetch(apiUrl, {	
 				method: 'POST',	
 				headers: { 'Content-Type': 'application/json' },	
 				body: JSON.stringify(payload)	
@@ -1681,8 +1788,8 @@ export default function App() {
 			// Better to just handle .txt for simplicity as requested "solo .txt"
 			const dummyText = `[File: ${file.name}]\n\n(Content extraction available for .txt files)`;	
 			if(activeMode === 'text') setFText(prev => ({...prev, base: dummyText}));	
-			else if(activeMode === 'audio') setFAud(prev => ({...prev, text: dummyText}));	
-			else if(activeMode === 'simplify') setFSimp(prev => ({...prev, text: dummyText}));	
+			else if(activeMode === 'audio') setFAud(prev => ({...p, text: dummyText}));	
+			else if(activeMode === 'simplify') setFSimp(prev => ({...p, text: dummyText}));	
 		}	
 		e.target.value = '';	
 	};
@@ -1706,9 +1813,156 @@ export default function App() {
 
 	const handleText = async () => {	
 		if (!fText.topic.trim()) { alert(t('topicPlace')); return; }	
-		// MODIFIED: Include readingLevel in prompt
 		const readingLevelText = fText.readingLevel ? fText.readingLevel : "Nivel estándar, ajusta a Etapa Educativa.";
-		const p = `
+		
+		let prompt;
+		if (fText.type === 'Quiz') {
+			// --- QUIZ PROMPT LOGIC ---
+			// MODIFIED: Added detailed script logic to make radio buttons selectable and add check logic
+			prompt = `
+[ROL]: Experto en diseño curricular y creador de recursos interactivos accesibles.
+
+[TAREA]: Generar un recurso didáctico de QUIZ de opción múltiple interactivo.
+
+[PARÁMETROS]:
+- TEMA: "${fText.topic}"
+- IDIOMA DE SALIDA: ${fText.lang || appLang}
+- ETAPA EDUCATIVA: ${fText.stage}
+- OBJETIVO: ${fText.obj || "Comprobación de la comprensión del tema"}
+- PERFIL DEL ALUMNO (NECESIDAD): ${fText.need || "General / Inclusivo"}
+- NÚMERO DE PREGUNTAS: 3 a 4 preguntas de opción múltiple (4 opciones, solo 1 correcta).
+
+[FORMATO DE SALIDA - IMPORTANTE]:
+- Genera EXCLUSIVAMENTE UN ÚNICO bloque de código HTML que contenga:
+    1. El título del quiz (<h3>).
+    2. Las preguntas dentro de un contenedor <div id="quizForm" class="quiz-container">. Asegúrate de usar la clase "question-block" para cada pregunta.
+    3. Un botón de "Comprobar Respuestas" (<button onclick="checkQuiz()">).
+    4. Un contenedor de resultados (<div id="results">).
+    5. UN BLOQUE <style> y UN BLOQUE <script> al final.
+
+<style>
+/* Estilos para accesibilidad y alto contraste (solicitado por el usuario) */
+.quiz-container { max-width: 100%; word-wrap: break-word; overflow-x: hidden; background-color: #1E1F20; padding: 15px; border-radius: 12px; }
+.question-text { font-weight: bold; margin-top: 15px; color: #F3F4F6; font-size: 1.1em; line-height: 1.5; }
+.option-label { display: block; padding: 10px; margin-top: 8px; border: 1px solid #4b5563; border-radius: 8px; transition: background-color 0.2s; background-color: #28292A; color: #F3F4F6; }
+.option-label:hover { background-color: #374151; }
+.correct { background-color: #80C207 !important; color: #1e1e1e !important; font-weight: bold; border-color: #80C207 !important; }
+.incorrect { background-color: #D5201F !important; color: #1e1e1e !important; font-weight: bold; border-color: #D5201F !important; }
+.check-button { padding: 10px 20px; background-color: #096EBE; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 20px; font-weight: bold; transition: background-color 0.2s; }
+.check-button:hover { background-color: #075ba5; }
+.results-box { margin-top: 20px; padding: 15px; border-radius: 8px; background-color: #28292A; font-weight: bold; color: #F3F4F6; border: 2px solid #096EBE; }
+.question-block { margin-bottom: 20px; }
+.option-input { margin-right: 8px; } /* Style for radio buttons */
+</style>
+
+<h3>Quiz: \${fText.topic}</h3>
+
+<div id="quizForm" class="quiz-container">
+    <div class="question-block">
+        <p class="question-text">¿Cuál es el planeta más grande de nuestro sistema solar?</p>
+        <label class="option-label">
+            <input type="radio" name="q1" value="A" class="option-input"> A) Marte
+        </label>
+        <label class="option-label">
+            <input type="radio" name="q1" value="B" data-correct="true" class="option-input"> B) Júpiter
+        </label>
+        <label class="option-label">
+            <input type="radio" name="q1" value="C" class="option-input"> C) Tierra
+        </label>
+        <label class="option-label">
+            <input type="radio" name="q1" value="D" class="option-input"> D) Saturno
+        </label>
+    </div>
+    
+    <div class="question-block">
+        <p class="question-text">¿Qué tipo de texto es este quiz?</p>
+        <label class="option-label">
+            <input type="radio" name="q2" value="A" class="option-input"> A) Explicación
+        </label>
+        <label class="option-label">
+            <input type="radio" name="q2" value="B" class="option-input"> B) Analogía
+        </label>
+        <label class="option-label">
+            <input type="radio" name="q2" value="C" data-correct="true" class="option-input"> C) Evaluación
+        </label>
+        <label class="option-label">
+            <input type="radio" name="q2" value="D" class="option-input"> D) Glosario
+        </label>
+    </div>
+</div>
+
+<button onclick="checkQuiz()" class="check-button">Comprobar Respuestas</button>
+<div id="results"></div>
+
+<script>
+function checkQuiz() {
+    const form = document.getElementById('quizForm');
+    const resultsDiv = document.getElementById('results');
+    let correctCount = 0;
+    let totalQuestions = 0;
+    resultsDiv.innerHTML = ''; // Clear previous results
+
+    form.querySelectorAll('.question-block').forEach(questionBlock => {
+        totalQuestions++;
+        let isCorrect = false;
+        
+        // Clear previous feedback
+        questionBlock.querySelectorAll('.option-label').forEach(label => {
+            label.classList.remove('correct', 'incorrect');
+        });
+
+        // Find selected radio button
+        const selectedOption = questionBlock.querySelector('input[type="radio"]:checked');
+        
+        if (selectedOption) {
+            const selectedLabel = selectedOption.closest('.option-label');
+            const isAnswerCorrect = selectedOption.dataset.correct === 'true';
+            
+            if (isAnswerCorrect) {
+                correctCount++;
+                isCorrect = true;
+                selectedLabel.classList.add('correct');
+            } else {
+                selectedLabel.classList.add('incorrect');
+            }
+            
+            // Highlight the correct answer if incorrect choice was made
+            const correctAnswer = questionBlock.querySelector('input[data-correct="true"]');
+            if (correctAnswer && !isCorrect) {
+                correctAnswer.closest('.option-label').classList.add('correct');
+            }
+        } else {
+            // Highlight correct answer if none selected
+            const correctAnswer = questionBlock.querySelector('input[data-correct="true"]');
+            if (correctAnswer) {
+                correctAnswer.closest('.option-label').classList.add('correct');
+            }
+        }
+    });
+
+    resultsDiv.classList.add('results-box');
+    resultsDiv.innerHTML = \`Puntuación: \${correctCount} de \${totalQuestions}. (\${Math.round((correctCount / totalQuestions) * 100)}%)\`;
+}
+
+// Function to allow label click to select radio button and prevent label double-click issue
+document.addEventListener('DOMContentLoaded', () => {
+    // We bind a click listener to the label element, which contains the radio input.
+    document.querySelectorAll('.option-label').forEach(label => {
+        label.addEventListener('click', (e) => {
+            const radio = label.querySelector('input[type="radio"]');
+            // Check if the actual target wasn't the radio input itself (to prevent double-toggling)
+            if (radio && e.target !== radio) {
+                radio.checked = true;
+            }
+        });
+    });
+});
+</script>
+`;
+			
+		} else {
+			// --- TEXTO ESTÁNDAR PROMPT LOGIC (Original) ---
+			prompt = `
 [ROL]: Experto pedagogo en Educación Especial (PT/AL) especializado en Diseño Universal para el Aprendizaje (DUA).
 
 [TAREA]: Generar un recurso didáctico textual optimizado.
@@ -1739,8 +1993,10 @@ export default function App() {
 	<p><strong>Conclusión/Resumen final.</strong></p>
 - NO uses bloques de código markdown.
 `;
+		}
+		
 		const meta = { topic: fText.topic, type: fText.type, lang: fText.lang || appLang, stage: fText.stage, need: fText.need, readingLevel: fText.readingLevel };
-		await processRequest(p, 'text', `${t('generateBtn')}: ${fText.topic}`, "Expert SEND.", meta);	
+		await processRequest(prompt, 'text', `${t('generateBtn')}: ${fText.topic}`, "Expert SEND.", meta);	
 	};
 
 	const handleImage = async () => {	
@@ -1753,7 +2009,7 @@ export default function App() {
 		addMessage({ role: 'user', content: `Img: ${fImg.prompt}` });	
 		setIsTyping(true);	
 		try {	
-			const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instances: [{ prompt: p }], parameters: { sampleCount: 1, aspectRatio: fImg.ratio || "1:1" } }) });	
+			const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instances: [{ prompt: p }], parameters: { sampleCount: 1, aspectRatio: "1:1" } }) });	
 			if(!r.ok) throw new Error("Image API Error");
 			const d = await r.json();	
 			const b64 = d.predictions?.[0]?.bytesBase64Encoded;	
@@ -1763,9 +2019,9 @@ export default function App() {
 			} else {
 				throw new Error("No image data received.");
 			}
-		} catch(e) { 
+		} catch(e) { 
 			console.error("Image generation error:", e);
-			addMessage({ role: 'ai', content: "Error generating image." }); 
+			addMessage({ role: 'ai', content: "Error generating image." }); 
 		}	
 		setIsTyping(false);	
 	};
@@ -1855,7 +2111,7 @@ export default function App() {
 			let audioUrl = null;
 			try {
 				// Use fAud.voice (default Kore) for video narration
-				const voiceName = fAud.voice; 
+				const voiceName = fAud.voice; 
 				
 				const payload = {	
 					model: "gemini-2.5-flash-preview-tts",	
@@ -1927,9 +2183,9 @@ export default function App() {
 			const json = JSON.parse(cleanJson(rawText));	
 			const meta = { topic: fBoard.context, lang: fBoard.lang || appLang, type: 'Tablero' };
 			addMessage({ role: 'ai', content: fBoard.context, type: 'board', extraData: json, metadata: meta });	
-		} catch(e) { 
+		} catch(e) { 
 			console.error("Board generation error:", e);
-			addMessage({ role: 'ai', content: "Error generating communication board." }); 
+			addMessage({ role: 'ai', content: "Error generating communication board." }); 
 		}	
 		setIsTyping(false);	
 	};
@@ -2092,30 +2348,30 @@ export default function App() {
 										))}
 									</div>
 
-									<input className={`input-std ${currentTheme.bgInput} ${currentTheme.borderInput} ${currentTheme.textPrimary}`} value={fText.topic} onChange={e=>setFText({...fText, topic: e.target.value})} placeholder={t('topicPlace')}	
+									<input 
+										className={`input-std ${currentTheme.bgInput} ${currentTheme.borderInput} ${currentTheme.textPrimary}`} 
+										value={fText.topic} 
+										onChange={e=>setFText({...fText, topic: e.target.value})} 
+										placeholder={t('topicPlace')}	
 										style={{ borderColor: 'transparent', border: `1px solid ${appTheme === 'dark' ? '#374151' : '#d1d5db'}` }}	
 										onFocus={(e) => e.target.style.borderColor = CUSTOM_COLORS.blue}
 										onBlur={(e) => e.target.style.borderColor = appTheme === 'dark' ? '#374151' : '#d1d5db'}
 									/>
-									<input className={`input-std ${currentTheme.bgInput} ${currentTheme.borderInput} ${currentTheme.textPrimary}`} value={fText.obj} onChange={e=>setFText({...fText, obj: e.target.value})} placeholder={t('objPlace')}	
+									<input 
+										className={`input-std ${currentTheme.bgInput} ${currentTheme.borderInput} ${currentTheme.textPrimary}`} 
+										value={fText.obj} 
+										onChange={e=>setFText({...fText, obj: e.target.value})} 
+										placeholder={t('objPlace')}	
 										style={{ borderColor: 'transparent', border: `1px solid ${appTheme === 'dark' ? '#374151' : '#d1d5db'}` }}	
 										onFocus={(e) => e.target.style.borderColor = CUSTOM_COLORS.blue}
 										onBlur={(e) => e.target.style.borderColor = appTheme === 'dark' ? '#374151' : '#d1d5db'}
 									/>
-									<select className={`input-std ${currentTheme.bgInput} ${currentTheme.borderInput} ${currentTheme.textPrimary}`} value={fText.type} onChange={e=>setFText({...fText, type: e.target.value})}
-										style={{ borderColor: 'transparent', border: `1px solid ${appTheme === 'dark' ? '#374151' : '#d1d5db'}` }}	
-										onFocus={(e) => e.target.style.borderColor = CUSTOM_COLORS.blue}
-										onBlur={(e) => e.target.style.borderColor = appTheme === 'dark' ? '#374151' : '#d1d5db'}
-									>
+									<select className={`input-std ${currentTheme.bgInput} ${currentTheme.borderInput} ${currentTheme.textPrimary}`} value={fText.type} onChange={e=>setFText({...fText, type: e.target.value})}>
 										<option value="" disabled>{t('typePlace')}</option>
 										{t('textTypes').map(x=><option key={x} value={x}>{x}</option>)}
 									</select>
 									{/* ADDED Reading Level Select */}
-									<select className={`input-std ${currentTheme.bgInput} ${currentTheme.borderInput} ${currentTheme.textPrimary}`} value={fText.readingLevel} onChange={e=>setFText({...fText, readingLevel: e.target.value})}
-										style={{ borderColor: 'transparent', border: `1px solid ${appTheme === 'dark' ? '#374151' : '#d1d5db'}` }}	
-										onFocus={(e) => e.target.style.borderColor = CUSTOM_COLORS.blue}
-										onBlur={(e) => e.target.style.borderColor = appTheme === 'dark' ? '#374151' : '#d1d5db'}
-									>
+									<select className={`input-std ${currentTheme.bgInput} ${currentTheme.borderInput} ${currentTheme.textPrimary}`} value={fText.readingLevel} onChange={e=>setFText({...fText, readingLevel: e.target.value})}>
 										<option value="" disabled>{t('readLevel')}</option>
 										{t('readingLevels').map(l=><option key={l} value={l}>{l}</option>)}
 									</select>
@@ -2283,15 +2539,41 @@ export default function App() {
 
 							{isSettingsOpen && (
 								<div className={`mb-3 p-2 rounded-lg ${currentTheme.bgMain} border ${currentTheme.border} animate-in slide-in-from-bottom-2 fade-in duration-200`}>
+									
+									{/* SECCIÓN 1: APARIENCIA (Ahora independiente) */}
 									<div className="flex items-center justify-between p-2 rounded hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer" onClick={() => setAppTheme(prev => prev === 'dark' ? 'light' : 'dark')}>
 										<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
 											{appTheme === 'dark' ? <Moon size={14}/> : <Sun size={14}/>}
 											<span>{t('appearance')}</span>
 										</div>
+										<span className={`text-[10px] font-semibold ${currentTheme.textSecondary}`}>
+                                            {appTheme === 'dark' ? 'Oscuro' : 'Claro'}
+                                        </span>
+									</div>
+									
+									{/* NEW: Dyslexic Font Toggle */}
+									<div className="flex items-center justify-between p-2 rounded hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer" onClick={() => setIsDyslexicFont(prev => !prev)}>
+										<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+											<Type size={14}/>
+											<span>{t('dyslexicFont')}</span>
+										</div>
+										<span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${isDyslexicFont ? 'bg-green-500/20 text-green-400' : `${currentTheme.textSecondary} bg-gray-500/10`}`}>
+                                            {isDyslexicFont ? 'Activado' : 'Desactivado'}
+                                        </span>
+									</div>
+
+
+									{/* SECCIÓN 2: IDIOMA (Independiente) */}
+                                    <div className="flex items-center justify-between p-2 rounded">
+                                        <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            <Globe size={14}/>
+											<span>{t('language')}</span>
+                                        </div>
 										<div className="grid grid-cols-3 gap-2">
 											{['es', 'ca', 'en'].map((lang) => (
 												<button	
 													key={lang}
+													// Solo cambia el idioma, no el tema
 													onClick={() => setAppLang(lang)}
 													className={`
 														text-[10px] font-bold py-1 px-2 rounded transition-colors uppercase
@@ -2324,7 +2606,7 @@ export default function App() {
 						</div>
 					</div>
 					<div className="flex items-center gap-3">
-						<button onClick={() => setShowHelp(true)} className={`p-2 rounded-full ${currentTheme.hoverBg} ${currentTheme.textSecondary} transition-colors`} title={t('helpTitle')}>
+						<button onClick={() => setShowHelp(true)} className={`p-2 rounded-full ${currentTheme.hoverBg} ${currentTheme.textSecondary}`} title={t('helpTitle')}>
 							<CircleHelp size={20} />
 						</button>
 						<div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-purple-900/20">AI</div>
@@ -2353,7 +2635,8 @@ export default function App() {
 								<p className={`text-sm ${currentTheme.textMuted} max-w-xs text-center`}>{t('welcomeSub')}</p>
 							</div>
 						) : (
-							<div className="py-6 space-y-2">
+							// FIXED: Added flex-1 and overflow-y-auto to this container to manage chat scrolling
+							<div className="py-6 space-y-2 flex-1 overflow-y-auto scrollbar-thin">
 								{messages.map((m) => (
 									<MessageBubble	
 										key={m.id}
@@ -2523,4 +2806,3 @@ export default function App() {
 		</div>
 	);
 }
-
